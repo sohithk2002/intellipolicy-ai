@@ -17,8 +17,8 @@ import { AuditRecord, ClaimAuditRecord } from "@/lib/types";
 import { useDocumentContext } from "@/lib/DocumentContext";
 
 const STAT_META = [
-  { label: "Documents Processed", key: "documents_uploaded",    icon: FileText,      from: "#0ea5e9", to: "#6366f1", glow: "rgba(14,165,233,0.10)"  },
-  { label: "Questions Answered",  key: "questions_answered",     icon: MessageSquare, from: "#6366f1", to: "#8b5cf6", glow: "rgba(99,102,241,0.10)"  },
+  { label: "Documents Processed", key: "documents_uploaded",    icon: FileText,      from: "#d1d5db", to: "#6b7280", glow: "rgba(0,0,0,0.06)"  },
+  { label: "Questions Answered",  key: "questions_answered",     icon: MessageSquare, from: "#6b7280", to: "#8b5cf6", glow: "rgba(0,0,0,0.06)"  },
   { label: "Policy Comparisons",  key: "policy_changes_detected",icon: GitCompare,    from: "#8b5cf6", to: "#a855f7", glow: "rgba(139,92,246,0.10)"  },
   { label: "Rules Extracted",     key: "rules_extracted",        icon: FileCode2,     from: "#10b981", to: "#14b8a6", glow: "rgba(16,185,129,0.10)"  },
   { label: "Claims Validated",    key: "claims_validated",       icon: ShieldCheck,   from: "#f59e0b", to: "#f97316", glow: "rgba(245,158,11,0.10)"  },
@@ -26,9 +26,9 @@ const STAT_META = [
 ] as const;
 
 const quickActions = [
-  { href: "/upload",    label: "Upload Policy",    desc: "Add a new PDF document",    icon: FileText,      color: "#38bdf8" },
-  { href: "/assistant", label: "Ask a Question",   desc: "Query your policy library",  icon: MessageSquare, color: "#818cf8" },
-  { href: "/compare",   label: "Compare Policies", desc: "Detect version changes",     icon: GitCompare,    color: "#a78bfa" },
+  { href: "/upload",    label: "Upload Policy",    desc: "Add a new PDF document",    icon: FileText,      color: "#111827" },
+  { href: "/assistant", label: "Ask a Question",   desc: "Query your policy library",  icon: MessageSquare, color: "#94a3b8" },
+  { href: "/compare",   label: "Compare Policies", desc: "Detect version changes",     icon: GitCompare,    color: "#94a3b8" },
   { href: "/claims",    label: "Validate Claim",   desc: "Check CPT + diagnosis code", icon: Activity,      color: "#fbbf24" },
 ];
 
@@ -186,14 +186,14 @@ function ActivityChart({ data }: { data: { day: string; queries: number; claims:
                 animate={{ scaleY: 1 }}
                 transition={{ delay: 0.45 + i * 0.06, duration: 0.5, ease: "easeOut" }}
                 className="flex-1 rounded-t origin-bottom"
-                style={{ height: `${(d.queries / max) * 100}%`, background: "rgba(56,189,248,0.6)", borderRadius: "4px 4px 0 0" }}
+                style={{ height: `${(d.queries / max) * 100}%`, background: "rgba(0,0,0,0.36)", borderRadius: "4px 4px 0 0" }}
               />
               <motion.div
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
                 transition={{ delay: 0.5 + i * 0.06, duration: 0.5, ease: "easeOut" }}
                 className="flex-1 rounded-t origin-bottom"
-                style={{ height: `${(d.claims / max) * 100}%`, background: "rgba(129,140,248,0.55)", borderRadius: "4px 4px 0 0" }}
+                style={{ height: `${(d.claims / max) * 100}%`, background: "rgba(0,0,0,0.33)", borderRadius: "4px 4px 0 0" }}
               />
             </div>
           </motion.div>
@@ -220,7 +220,7 @@ function CardTitle({ icon: Icon, title, color = "text-sky-400", action }: {
     <div className="flex items-center justify-between mb-7">
       <div className="flex items-center gap-3">
         <Icon className={`w-5 h-5 ${color}`} />
-        <h2 className="text-[18px] font-bold text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+        <h2 className="text-[18px] font-bold text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
           {title}
         </h2>
       </div>
@@ -279,7 +279,7 @@ function ApiKeyPanel() {
         color="text-violet-400"
         action={
           checking ? (
-            <div className="flex items-center gap-2 text-[12px] text-slate-500 bg-white/4 border border-white/8 px-3 py-1.5 rounded-lg font-semibold">
+            <div className="flex items-center gap-2 text-[12px] text-slate-500 bg-black/4 border border-black/8 px-3 py-1.5 rounded-lg font-semibold">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
               Checking…
             </div>
@@ -310,7 +310,7 @@ function ApiKeyPanel() {
             <select
               value={provider}
               onChange={(e) => setProvider(e.target.value)}
-              className="w-full appearance-none bg-white/4 border border-white/10 rounded-xl px-4 py-3 text-[14px] text-slate-200 focus:outline-none focus:border-violet-500/40 transition-colors cursor-pointer pr-10"
+              className="w-full appearance-none bg-black/4 border border-black/10 rounded-xl px-4 py-3 text-[14px] text-slate-700 focus:outline-none focus:border-black/20 transition-colors cursor-pointer pr-10"
             >
               {PROVIDERS.map((p) => (
                 <option key={p.value} value={p.value} style={{ background: "#0d1224" }}>
@@ -331,7 +331,7 @@ function ApiKeyPanel() {
             onChange={(e) => setApiKey(e.target.value)}
             placeholder={selectedProvider.placeholder}
             onKeyDown={(e) => e.key === "Enter" && handleSave()}
-            className="w-full bg-white/4 border border-white/10 rounded-xl px-4 py-3 text-[14px] text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-violet-500/40 transition-colors font-mono"
+            className="w-full bg-black/4 border border-black/10 rounded-xl px-4 py-3 text-[14px] text-slate-700 placeholder:text-slate-700 focus:outline-none focus:border-black/20 transition-colors font-mono"
           />
         </div>
 
@@ -340,9 +340,9 @@ function ApiKeyPanel() {
           disabled={saving || !apiKey.trim()}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-semibold transition-all disabled:opacity-40"
           style={{
-            background: "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.25))",
-            border: "1px solid rgba(139,92,246,0.35)",
-            color: "#c4b5fd",
+            background: "rgba(0,0,0,0.05)",
+            border: "1px solid rgba(0,0,0,0.12)",
+            color: "#374151",
           }}
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4" />}
@@ -442,16 +442,16 @@ function SampleDocumentsPanel({ onLoaded }: { onLoaded: () => void }) {
                 className="flex items-center gap-4 rounded-xl transition-all"
                 style={{
                   padding: "14px 18px",
-                  background: isLoaded ? "rgba(52,211,153,0.05)" : "rgba(255,255,255,0.03)",
-                  border: isLoaded ? "1px solid rgba(52,211,153,0.2)" : "1px solid rgba(255,255,255,0.07)",
+                  background: isLoaded ? "rgba(52,211,153,0.05)" : "rgba(0,0,0,0.02)",
+                  border: isLoaded ? "1px solid rgba(52,211,153,0.2)" : "1px solid rgba(0,0,0,0.04)",
                 }}
               >
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.2)" }}>
+                  style={{ background: "rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.12)" }}>
                   <FileText className="w-4 h-4 text-sky-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-slate-200 leading-snug truncate">{doc.label}</p>
+                  <p className="text-[14px] font-semibold text-slate-700 leading-snug truncate">{doc.label}</p>
                   <p className="text-[11px] text-slate-600 mt-0.5 font-mono">{doc.size_kb} KB</p>
                 </div>
                 {isLoaded ? (
@@ -465,9 +465,9 @@ function SampleDocumentsPanel({ onLoaded }: { onLoaded: () => void }) {
                     disabled={isLoading}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-semibold transition-all disabled:opacity-50"
                     style={{
-                      background: "rgba(14,165,233,0.12)",
-                      border: "1px solid rgba(14,165,233,0.25)",
-                      color: "#38bdf8",
+                      background: "rgba(0,0,0,0.07)",
+                      border: "1px solid rgba(0,0,0,0.15)",
+                      color: "#111827",
                     }}
                   >
                     {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
@@ -486,6 +486,7 @@ function SampleDocumentsPanel({ onLoaded }: { onLoaded: () => void }) {
 // ── Document Library Panel ────────────────────────────────────────────────────
 function DocumentLibraryPanel() {
   const { documents, selectedDoc, setSelectedDoc } = useDocumentContext();
+  const [open, setOpen] = useState(false);
 
   const DOC_TYPE_LABEL: Record<string, string> = {
     policy:            "Policy Manual",
@@ -494,159 +495,153 @@ function DocumentLibraryPanel() {
     cms_rule:          "CMS Rule",
   };
 
+  const ready = documents.filter((d) => d.status === "ready");
+
   return (
-    <GlassCard style={{ padding: "32px 32px" }}>
+    <GlassCard style={{ padding: "28px 32px" }}>
       <CardTitle
         icon={FileText}
         title="Uploaded Documents"
         color="text-sky-400"
         action={
-          <div className="flex items-center gap-3">
-            <span className="text-[12px] text-slate-500 font-medium">
-              {documents.length} {documents.length === 1 ? "document" : "documents"}
-            </span>
-            <Link
-              href="/upload"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all"
-              style={{
-                background: "rgba(14,165,233,0.1)",
-                border: "1px solid rgba(14,165,233,0.22)",
-                color: "#38bdf8",
-              }}
-            >
-              <ArrowUpRight className="w-3 h-3" />
-              Upload New
-            </Link>
-          </div>
+          <span className="text-[12px] text-slate-500 font-medium bg-black/4 border border-black/6 px-2.5 py-1 rounded-md">
+            {documents.length} {documents.length === 1 ? "document" : "documents"}
+          </span>
         }
       />
 
       {documents.length === 0 ? (
-        <div className="py-10 text-center">
-          <FileText className="w-10 h-10 text-slate-700 mx-auto mb-4" />
-          <p className="text-[15px] font-semibold text-slate-500 mb-1">No documents yet</p>
-          <p className="text-[13px] text-slate-700 mb-5">
+        <div className="py-8 text-center">
+          <FileText className="w-8 h-8 text-slate-400 mx-auto mb-3" />
+          <p className="text-[14px] font-semibold text-slate-500 mb-1">No documents yet</p>
+          <p className="text-[12px] text-slate-600">
             Upload a policy PDF or load a sample document to get started.
           </p>
-          <Link
-            href="/upload"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold"
-            style={{
-              background: "rgba(14,165,233,0.12)",
-              border: "1px solid rgba(14,165,233,0.25)",
-              color: "#38bdf8",
-            }}
-          >
-            <ArrowRight className="w-4 h-4" />
-            Go to Upload
-          </Link>
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {documents.map((doc, i) => {
-            const isActive = selectedDoc?.id === doc.id;
-            const isReady  = doc.status === "ready";
-            return (
-              <motion.div
-                key={doc.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
-                className="flex items-center gap-4 rounded-xl transition-all"
-                style={{
-                  padding: "14px 18px",
-                  background: isActive
-                    ? "rgba(14,165,233,0.07)"
-                    : "rgba(255,255,255,0.025)",
-                  border: isActive
-                    ? "1px solid rgba(14,165,233,0.25)"
-                    : "1px solid rgba(255,255,255,0.06)",
-                }}
-              >
-                {/* Icon */}
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+        <div className="flex items-start gap-6">
+          {/* Dropdown selector */}
+          <div className="flex-1">
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              Active Document
+            </label>
+
+            {/* Trigger */}
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="w-full flex items-center gap-3 rounded-xl text-left transition-colors"
+              style={{
+                padding: "12px 16px",
+                background: "rgba(0,0,0,0.03)",
+                border: open ? "1px solid rgba(0,0,0,0.18)" : "1px solid rgba(0,0,0,0.09)",
+                borderRadius: open ? "12px 12px 0 0" : "12px",
+              }}
+            >
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                style={{ background: "rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.08)" }}>
+                <FileText className="w-3.5 h-3.5 text-slate-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-gray-900 truncate">
+                  {selectedDoc ? selectedDoc.filename : "Select a document…"}
+                </p>
+                {selectedDoc && (
+                  <p className="text-[11px] text-slate-500 mt-0.5 font-mono">
+                    {DOC_TYPE_LABEL[selectedDoc.document_type] ?? selectedDoc.document_type}
+                    {selectedDoc.page_count > 0 ? ` · ${selectedDoc.page_count} pages` : ""}
+                    {selectedDoc.chunk_count ? ` · ${selectedDoc.chunk_count} chunks` : ""}
+                  </p>
+                )}
+              </div>
+              <ChevronDown
+                className="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200"
+                style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+              />
+            </button>
+
+            {/* Inline list — no absolute positioning, flows in page */}
+            <AnimatePresence>
+              {open && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
                   style={{
-                    background: isActive ? "rgba(14,165,233,0.15)" : "rgba(255,255,255,0.05)",
-                    border: isActive ? "1px solid rgba(14,165,233,0.25)" : "1px solid rgba(255,255,255,0.08)",
+                    overflow: "hidden",
+                    border: "1px solid rgba(0,0,0,0.09)",
+                    borderTop: "none",
+                    borderRadius: "0 0 12px 12px",
+                    background: "#f9fafb",
                   }}
                 >
-                  <FileText className="w-4 h-4" style={{ color: isActive ? "#38bdf8" : "#64748b" }} />
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-[14px] font-semibold text-slate-200 truncate leading-snug">
-                    {doc.filename}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-[11px] text-slate-500">
-                      {DOC_TYPE_LABEL[doc.document_type] ?? doc.document_type}
-                    </span>
-                    {doc.page_count > 0 && (
-                      <span className="text-[11px] text-slate-600">
-                        {doc.page_count} pages
-                      </span>
-                    )}
-                    {doc.chunk_count != null && doc.chunk_count > 0 && (
-                      <span className="text-[11px] text-slate-600">
-                        {doc.chunk_count} chunks
-                      </span>
-                    )}
+                  <div className="py-1">
+                    {documents.map((doc) => {
+                      const isActive = selectedDoc?.id === doc.id;
+                      const isReady  = doc.status === "ready";
+                      return (
+                        <button
+                          key={doc.id}
+                          disabled={!isReady}
+                          onClick={() => { if (isReady) { setSelectedDoc(doc); setOpen(false); } }}
+                          className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors disabled:opacity-50"
+                          style={{ background: isActive ? "rgba(0,0,0,0.05)" : "transparent" }}
+                          onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(0,0,0,0.03)"; }}
+                          onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = isActive ? "rgba(0,0,0,0.05)" : "transparent"; }}
+                        >
+                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                            style={{ background: isActive ? "rgba(0,0,0,0.09)" : "rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.06)" }}>
+                            <FileText className="w-3 h-3" style={{ color: isActive ? "#111827" : "#64748b" }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[13px] font-semibold text-gray-900 truncate">{doc.filename}</p>
+                            <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                              {DOC_TYPE_LABEL[doc.document_type] ?? doc.document_type}
+                              {doc.page_count > 0 ? ` · ${doc.page_count}p` : ""}
+                              {doc.chunk_count ? ` · ${doc.chunk_count} chunks` : ""}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded"
+                              style={{
+                                background: isReady ? "rgba(52,211,153,0.1)" : "rgba(251,191,36,0.1)",
+                                color: isReady ? "#34d399" : "#fbbf24",
+                              }}>
+                              {isReady ? "Ready" : doc.status}
+                            </span>
+                            {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-gray-900" />}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Selected doc stats */}
+          {selectedDoc && (
+            <motion.div
+              key={selectedDoc.id}
+              initial={{ opacity: 0, x: 8 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex gap-4 shrink-0"
+            >
+              {[
+                { label: "Pages",  value: selectedDoc.page_count > 0 ? String(selectedDoc.page_count) : "—" },
+                { label: "Chunks", value: selectedDoc.chunk_count ? String(selectedDoc.chunk_count) : "—" },
+                { label: "Status", value: selectedDoc.status === "ready" ? "Ready" : selectedDoc.status },
+              ].map(({ label, value }) => (
+                <div key={label} className="text-center px-4 py-3 rounded-xl"
+                  style={{ background: "rgba(0,0,0,0.02)", border: "1px solid rgba(0,0,0,0.05)", minWidth: 64 }}>
+                  <p className="text-[18px] font-black text-gray-900 leading-none"
+                    style={{ fontFamily: "var(--font-heading, sans-serif)" }}>{value}</p>
+                  <p className="text-[10px] text-slate-500 mt-1.5 font-medium uppercase tracking-wide">{label}</p>
                 </div>
-
-                {/* Status badge */}
-                {isReady ? (
-                  <span
-                    className="text-[11px] font-semibold px-2.5 py-1 rounded-md shrink-0"
-                    style={{
-                      background: "rgba(52,211,153,0.1)",
-                      border: "1px solid rgba(52,211,153,0.2)",
-                      color: "#34d399",
-                    }}
-                  >
-                    Ready
-                  </span>
-                ) : (
-                  <span
-                    className="text-[11px] font-semibold px-2.5 py-1 rounded-md shrink-0"
-                    style={{
-                      background: "rgba(251,191,36,0.1)",
-                      border: "1px solid rgba(251,191,36,0.2)",
-                      color: "#fbbf24",
-                    }}
-                  >
-                    {doc.status}
-                  </span>
-                )}
-
-                {/* Active / Use button */}
-                {isActive ? (
-                  <div
-                    className="flex items-center gap-1.5 text-[12px] font-semibold shrink-0"
-                    style={{ color: "#38bdf8" }}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Active
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setSelectedDoc(doc)}
-                    disabled={!isReady}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold transition-all disabled:opacity-40 shrink-0"
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#94a3b8",
-                    }}
-                  >
-                    Use
-                  </button>
-                )}
-              </motion.div>
-            );
-          })}
+              ))}
+            </motion.div>
+          )}
         </div>
       )}
     </GlassCard>
@@ -695,7 +690,7 @@ export default function DashboardPage() {
           eyebrow="Overview"
           title="Claims Intelligence Dashboard"
           subtitle="Monitor policy ingestion, AI decisions, rule extraction, and audit activity across your healthcare intelligence platform."
-          gradient="#0ea5e9"
+          gradient="#d1d5db"
           action={
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[13px] font-semibold">
               <div className="w-2 h-2 rounded-full bg-emerald-400 pulse-glow" />
@@ -714,13 +709,13 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
-                whileHover={{ y: -3, borderColor: "rgba(255,255,255,0.13)" }}
+                whileHover={{ y: -3, borderColor: "rgba(0,0,0,0.08)" }}
                 className="relative rounded-[20px] overflow-hidden group cursor-pointer"
                 style={{
                   padding: "28px 24px",
-                  background: `radial-gradient(140% 100% at 50% 0%, ${s.from}14 0%, rgba(9,15,30,0.88) 65%)`,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  boxShadow: `0 1px 3px rgba(0,0,0,0.25), 0 0 32px ${s.glow}`,
+                  background: `radial-gradient(140% 100% at 50% 0%, ${s.from}14 0%, #ffffff 65%)`,
+                  border: "1px solid rgba(0,0,0,0.05)",
+                  boxShadow: `0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05), 0 0 24px ${s.glow}`,
                   transition: "border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease",
                 }}
               >
@@ -734,7 +729,7 @@ export default function DashboardPage() {
                   <ArrowUpRight className="w-4 h-4 text-slate-700 group-hover:text-slate-400 transition-colors mt-0.5" />
                 </div>
                 <p
-                  className="text-[32px] font-black text-white leading-none tracking-tight"
+                  className="text-[32px] font-black text-gray-900 leading-none tracking-tight"
                   style={{ fontFamily: "var(--font-heading, 'Plus Jakarta Sans', sans-serif)" }}
                 >
                   {s.value}
@@ -772,7 +767,7 @@ export default function DashboardPage() {
                       className="flex items-center gap-4 rounded-xl cursor-pointer group"
                       style={{
                         padding: "16px 18px",
-                        border: "1px solid rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(0,0,0,0.03)",
                         transition: "background 0.15s ease, border-color 0.15s ease",
                       }}
                       onMouseEnter={(e) => {
@@ -781,7 +776,7 @@ export default function DashboardPage() {
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = "transparent";
-                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)";
+                        e.currentTarget.style.borderColor = "rgba(0,0,0,0.03)";
                       }}
                     >
                       <div
@@ -791,7 +786,7 @@ export default function DashboardPage() {
                         <Icon className="w-4 h-4" style={{ color: a.color }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[15px] font-semibold text-slate-200 group-hover:text-white transition-colors leading-tight">
+                        <p className="text-[15px] font-semibold text-slate-700 group-hover:text-gray-900 transition-colors leading-tight">
                           {a.label}
                         </p>
                         <p className="text-[13px] text-slate-500 mt-1">{a.desc}</p>
@@ -810,7 +805,7 @@ export default function DashboardPage() {
               icon={Activity}
               title="Recent Activity"
               action={
-                <div className="flex items-center gap-2 text-[12px] text-slate-500 bg-white/4 px-3 py-1.5 rounded-lg border border-white/6">
+                <div className="flex items-center gap-2 text-[12px] text-slate-500 bg-black/4 px-3 py-1.5 rounded-lg border border-black/6">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-glow" />
                   Live
                 </div>
@@ -825,7 +820,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+              <div className="divide-y" style={{ borderColor: "rgba(0,0,0,0.03)" }}>
                 {activity.map((item, i) => {
                   const Icon = item.icon;
                   return (
@@ -850,7 +845,7 @@ export default function DashboardPage() {
                         <Icon className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[14px] text-slate-300 leading-snug">{item.msg}</p>
+                        <p className="text-[14px] text-slate-600 leading-snug">{item.msg}</p>
                         <div className="flex items-center gap-1.5 mt-1.5">
                           <Clock className="w-3 h-3 text-slate-700" />
                           <span className="text-[12px] text-slate-600">{item.time}</span>
@@ -876,11 +871,11 @@ export default function DashboardPage() {
             action={
               <div className="flex items-center gap-5 text-[13px] text-slate-500">
                 <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded inline-block" style={{ background: "rgba(56,189,248,0.6)" }} />
+                  <span className="w-3 h-3 rounded inline-block" style={{ background: "rgba(0,0,0,0.36)" }} />
                   Policy Queries
                 </span>
                 <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded inline-block" style={{ background: "rgba(129,140,248,0.55)" }} />
+                  <span className="w-3 h-3 rounded inline-block" style={{ background: "rgba(0,0,0,0.33)" }} />
                   Claim Validations
                 </span>
               </div>
@@ -899,7 +894,7 @@ export default function DashboardPage() {
               title="AI Agent Status"
               color="text-indigo-400"
               action={
-                <span className="text-[11px] text-slate-500 bg-white/4 px-3 py-1.5 rounded-lg border border-white/6 font-mono">
+                <span className="text-[11px] text-slate-500 bg-black/4 px-3 py-1.5 rounded-lg border border-black/6 font-mono">
                   LangGraph Orchestration
                 </span>
               }
@@ -935,7 +930,7 @@ export default function DashboardPage() {
                       {agent.status.toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-[12px] font-semibold text-slate-300 leading-tight">{agent.name}</p>
+                  <p className="text-[12px] font-semibold text-slate-600 leading-tight">{agent.name}</p>
                 </motion.div>
               ))}
             </div>
@@ -947,11 +942,7 @@ export default function DashboardPage() {
               icon={TrendingUp}
               title="Risk Insights"
               color="text-amber-400"
-              action={
-                <span className="text-[10px] text-amber-500/70 bg-amber-500/8 border border-amber-500/15 px-2 py-1 rounded-md font-semibold">
-                  Demo
-                </span>
-              }
+              action={null}
             />
             <div className="space-y-4">
               {riskInsights.map((r, i) => {
@@ -967,9 +958,9 @@ export default function DashboardPage() {
                     style={{
                       padding: "16px 18px",
                       background: ra.bg,
-                      borderTop: "1px solid rgba(255,255,255,0.05)",
-                      borderRight: "1px solid rgba(255,255,255,0.05)",
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      borderTop: "1px solid rgba(0,0,0,0.03)",
+                      borderRight: "1px solid rgba(0,0,0,0.03)",
+                      borderBottom: "1px solid rgba(0,0,0,0.03)",
                       borderLeft: `3px solid ${ra.border}`,
                       borderRadius: 14,
                     }}
@@ -977,7 +968,7 @@ export default function DashboardPage() {
                     <div className="flex items-start gap-3">
                       <Icon className="w-3.5 h-3.5 shrink-0 mt-0.5" style={{ color: ra.icon }} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[13px] text-slate-200 font-medium leading-snug">{r.label}</p>
+                        <p className="text-[13px] text-slate-700 font-medium leading-snug">{r.label}</p>
                         <p className="text-[11px] text-slate-600 mt-1.5 font-mono">{r.doc}</p>
                       </div>
                     </div>

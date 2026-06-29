@@ -18,22 +18,22 @@ function getVariantStyles(variant: string): React.CSSProperties {
   switch (variant) {
     case "primary":
       return {
-        background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
-        color: "white",
+        background: "#111827",
+        color: "#ffffff",
         border: "none",
-        boxShadow: "0 2px 12px rgba(14,165,233,0.22)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
       };
     case "secondary":
       return {
-        background: "rgba(255,255,255,0.05)",
-        color: "rgba(226,232,240,0.9)",
-        border: "1px solid rgba(255,255,255,0.1)",
+        background: "rgba(0,0,0,0.03)",
+        color: "rgba(17,24,39,0.9)",
+        border: "1px solid rgba(0,0,0,0.06)",
         backdropFilter: "blur(8px)",
       };
     case "ghost":
       return {
         background: "transparent",
-        color: "rgba(203,213,225,0.9)",
+        color: "rgba(17,24,39,0.9)",
         border: "1px solid transparent",
       };
     case "danger":
@@ -44,17 +44,17 @@ function getVariantStyles(variant: string): React.CSSProperties {
       };
     case "outline":
       return {
-        background: "rgba(255,255,255,0.03)",
-        color: "#38bdf8",
-        border: "1px solid rgba(56,189,248,0.3)",
+        background: "rgba(0,0,0,0.02)",
+        color: "#111827",
+        border: "1px solid rgba(0,0,0,0.18)",
         backdropFilter: "blur(8px)",
       };
     default:
       return {
-        background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
-        color: "white",
+        background: "#111827",
+        color: "#ffffff",
         border: "none",
-        boxShadow: "0 2px 12px rgba(14,165,233,0.22)",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
       };
   }
 }
@@ -100,16 +100,16 @@ export function Button({
           : variant === "primary"
           ? {
               y: -2,
-              boxShadow: "0 6px 24px rgba(14,165,233,0.32)",
+              boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
             }
           : variant === "secondary"
-          ? { background: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.18)" }
+          ? { background: "rgba(0,0,0,0.05)", borderColor: "rgba(0,0,0,0.11)" }
           : variant === "ghost"
-          ? { background: "rgba(255,255,255,0.05)" }
+          ? { background: "rgba(0,0,0,0.03)" }
           : variant === "danger"
           ? { background: "rgba(248,113,113,0.18)" }
           : variant === "outline"
-          ? { background: "rgba(14,165,233,0.08)", borderColor: "rgba(56,189,248,0.5)" }
+          ? { background: "rgba(0,0,0,0.05)", borderColor: "rgba(0,0,0,0.30)" }
           : {}
       }
       whileTap={disabled || loading ? {} : { scale: 0.98 }}

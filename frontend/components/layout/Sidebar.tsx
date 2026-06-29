@@ -34,8 +34,8 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
         top: 0,
         display: "flex",
         flexDirection: "column",
-        background: "#04070f",
-        borderRight: "1px solid rgba(255,255,255,0.06)",
+        background: "#ffffff",
+        borderRight: "1px solid rgba(0,0,0,0.04)",
       }}
     >
       {/* Logo area — 64px tall */}
@@ -45,7 +45,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
           padding: "0 20px",
           display: "flex",
           alignItems: "center",
-          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          borderBottom: "1px solid rgba(0,0,0,0.03)",
           flexShrink: 0,
         }}
       >
@@ -57,7 +57,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                 position: "absolute",
                 inset: -4,
                 borderRadius: 16,
-                background: "linear-gradient(135deg, rgba(14,165,233,0.35), rgba(99,102,241,0.35))",
+                background: "rgba(0,0,0,0.05)",
                 filter: "blur(8px)",
               }}
             />
@@ -67,7 +67,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                 width: 36,
                 height: 36,
                 borderRadius: 12,
-                background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+                background: "linear-gradient(135deg, #1e293b, #334155)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -82,7 +82,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
               style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: "white",
+                color: "#111827",
                 lineHeight: 1.2,
                 margin: 0,
                 fontFamily: "var(--font-heading, 'Plus Jakarta Sans', sans-serif)",
@@ -140,8 +140,8 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                     borderRadius: 12,
                     cursor: "pointer",
                     transition: "all 0.15s",
-                    background: active ? "rgba(14,165,233,0.08)" : "transparent",
-                    border: active ? "1px solid rgba(14,165,233,0.18)" : "1px solid transparent",
+                    background: active ? "rgba(0,0,0,0.05)" : "transparent",
+                    border: active ? "1px solid rgba(0,0,0,0.11)" : "1px solid transparent",
                   }}
                 >
                   {/* Icon pill */}
@@ -154,7 +154,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                       alignItems: "center",
                       justifyContent: "center",
                       flexShrink: 0,
-                      background: active ? "rgba(14,165,233,0.15)" : "rgba(255,255,255,0.04)",
+                      background: active ? "rgba(0,0,0,0.09)" : "rgba(0,0,0,0.02)",
                       transition: "all 0.15s",
                     }}
                   >
@@ -162,7 +162,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                       style={{
                         width: 15,
                         height: 15,
-                        color: active ? "#38bdf8" : "rgba(100,116,139,0.7)",
+                        color: active ? "#111827" : "rgba(100,116,139,0.7)",
                         transition: "color 0.15s",
                       }}
                     />
@@ -173,7 +173,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                       style={{
                         fontSize: 15,
                         fontWeight: 600,
-                        color: active ? "#38bdf8" : "rgba(100,116,139,0.9)",
+                        color: active ? "#111827" : "rgba(100,116,139,0.9)",
                         margin: 0,
                         lineHeight: 1.2,
                         fontFamily: "var(--font-heading, 'Plus Jakarta Sans', sans-serif)",
@@ -185,7 +185,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                     <p
                       style={{
                         fontSize: 11,
-                        color: active ? "rgba(56,189,248,0.5)" : "rgba(71,85,105,0.8)",
+                        color: active ? "rgba(0,0,0,0.30)" : "rgba(71,85,105,0.8)",
                         margin: "2px 0 0",
                         lineHeight: 1.3,
                         overflow: "hidden",
@@ -203,7 +203,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                         width: 6,
                         height: 6,
                         borderRadius: "50%",
-                        background: "#38bdf8",
+                        background: "#111827",
                         flexShrink: 0,
                       }}
                     />
@@ -216,7 +216,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
       </nav>
 
       {/* Bottom section */}
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)", flexShrink: 0 }}>
+      <div style={{ borderTop: "1px solid rgba(0,0,0,0.03)", flexShrink: 0 }}>
         {/* Active document picker */}
         <div style={{ padding: "10px 12px 4px" }}>
           <p style={{ fontSize: 9, fontWeight: 700, color: "rgba(100,116,139,0.5)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 }}>
@@ -224,7 +224,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
           </p>
           {documents.length === 0 ? (
             <Link href="/upload" style={{ textDecoration: "none" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 10px", borderRadius: 10, border: "1px dashed rgba(255,255,255,0.1)", cursor: "pointer" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 10px", borderRadius: 10, border: "1px dashed rgba(0,0,0,0.06)", cursor: "pointer" }}>
                 <Upload style={{ width: 12, height: 12, color: "rgba(71,85,105,0.7)", flexShrink: 0 }} />
                 <span style={{ fontSize: 11, color: "rgba(71,85,105,0.7)" }}>Upload a document</span>
               </div>
@@ -240,9 +240,9 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                 width: "100%",
                 padding: "6px 10px",
                 borderRadius: 10,
-                border: "1px solid rgba(14,165,233,0.25)",
-                background: "rgba(14,165,233,0.06)",
-                color: "#38bdf8",
+                border: "1px solid rgba(0,0,0,0.15)",
+                background: "rgba(0,0,0,0.04)",
+                color: "#111827",
                 fontSize: 11,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -251,7 +251,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
               }}
             >
               {documents.map((d) => (
-                <option key={d.id} value={d.id} style={{ background: "#04070f", color: "#e2e8f7" }}>
+                <option key={d.id} value={d.id} style={{ background: "#ffffff", color: "#111827" }}>
                   {d.filename.length > 28 ? d.filename.slice(0, 26) + "…" : d.filename}
                 </option>
               ))}
@@ -270,8 +270,8 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
               gap: 8,
               padding: "8px 12px",
               borderRadius: 12,
-              border: "1px solid rgba(255,255,255,0.07)",
-              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(0,0,0,0.04)",
+              background: "rgba(0,0,0,0.02)",
               cursor: "pointer",
               transition: "all 0.15s",
               textAlign: "left",
@@ -285,8 +285,8 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                   fontSize: 9,
                   padding: "2px 5px",
                   borderRadius: 4,
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(0,0,0,0.03)",
+                  border: "1px solid rgba(0,0,0,0.05)",
                   color: "rgba(71,85,105,0.9)",
                   fontFamily: "monospace",
                 }}
@@ -298,8 +298,8 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                   fontSize: 9,
                   padding: "2px 5px",
                   borderRadius: 4,
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "rgba(0,0,0,0.03)",
+                  border: "1px solid rgba(0,0,0,0.05)",
                   color: "rgba(71,85,105,0.9)",
                   fontFamily: "monospace",
                 }}
@@ -311,7 +311,7 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
         </div>
 
         {/* Agent status pill */}
-        <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(0,0,0,0.03)" }}>
           <div
             style={{
               display: "flex",
@@ -349,22 +349,22 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                 width: 32,
                 height: 32,
                 borderRadius: 10,
-                background: "linear-gradient(135deg, rgba(14,165,233,0.25), rgba(99,102,241,0.25))",
-                border: "1px solid rgba(14,165,233,0.2)",
+                background: "rgba(0,0,0,0.04)",
+                border: "1px solid rgba(0,0,0,0.07)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 flexShrink: 0,
               }}
             >
-              <Building2 style={{ width: 15, height: 15, color: "#93c5fd" }} />
+              <Building2 style={{ width: 15, height: 15, color: "#111827" }} />
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <p
                 style={{
                   fontSize: 12,
                   fontWeight: 700,
-                  color: "rgba(226,232,240,0.9)",
+                  color: "rgba(17,24,39,0.9)",
                   margin: 0,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -392,9 +392,9 @@ export default function Sidebar({ onCmdK }: { onCmdK?: () => void }) {
                 fontSize: 9,
                 padding: "2px 6px",
                 borderRadius: 6,
-                background: "rgba(14,165,233,0.1)",
-                color: "#38bdf8",
-                border: "1px solid rgba(14,165,233,0.2)",
+                background: "rgba(0,0,0,0.06)",
+                color: "#111827",
+                border: "1px solid rgba(0,0,0,0.12)",
                 fontWeight: 700,
                 letterSpacing: "0.05em",
                 flexShrink: 0,

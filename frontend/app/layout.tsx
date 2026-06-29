@@ -36,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${jakarta.variable} ${inter.variable} ${jetbrains.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#04070f] text-[#e2e8f7]">
+      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
         <DocumentProvider>{children}</DocumentProvider>
       </body>
     </html>

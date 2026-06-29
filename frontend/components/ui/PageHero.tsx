@@ -11,7 +11,7 @@ interface PageHeroProps {
   gradient?: string;
 }
 
-export function PageHero({ eyebrow, title, subtitle, action, gradient = "#0ea5e9" }: PageHeroProps) {
+export function PageHero({ eyebrow, title, subtitle, action, gradient = "#d1d5db" }: PageHeroProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -19,7 +19,7 @@ export function PageHero({ eyebrow, title, subtitle, action, gradient = "#0ea5e9
       transition={{ duration: 0.4, ease: "easeOut" }}
       style={{
         position: "relative",
-        borderBottom: "1px solid rgba(255,255,255,0.05)",
+        borderBottom: "1px solid rgba(0,0,0,0.03)",
         marginBottom: 32,
         overflow: "hidden",
       }}
@@ -94,7 +94,7 @@ export function PageHero({ eyebrow, title, subtitle, action, gradient = "#0ea5e9
             style={{
               fontSize: "clamp(2rem, 3.5vw, 2.75rem)",
               fontWeight: 900,
-              color: "white",
+              color: "#111827",
               letterSpacing: "-0.03em",
               lineHeight: 1.08,
               margin: 0,

@@ -19,7 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#04070f]">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar onCmdK={() => setCmdOpen(true)} />
       <main className="flex-1 overflow-y-auto dot-bg">
         {children}

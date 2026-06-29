@@ -60,17 +60,17 @@ function ChangeCard({ change, index }: { change: Change; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
       className="rounded-2xl overflow-hidden"
-      style={{ border: "1px solid rgba(255,255,255,0.07)", background: "rgba(9,15,30,0.7)" }}
+      style={{ border: "1px solid rgba(0,0,0,0.04)", background: "#ffffff" }}
     >
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full text-left px-6 py-4 flex items-center justify-between hover:bg-white/2 transition-colors"
+        className="w-full text-left px-6 py-4 flex items-center justify-between hover:bg-black/2 transition-colors"
       >
         <div className="flex items-center gap-3 flex-wrap">
           <span className={`text-[11px] px-2.5 py-1 rounded-lg border font-semibold ${tc}`}>
             {change.change_type}
           </span>
-          <p className="text-[15px] font-semibold text-slate-200">{change.area}</p>
+          <p className="text-[15px] font-semibold text-slate-700">{change.area}</p>
         </div>
         <div className="flex items-center gap-3 shrink-0 ml-4">
           <div className="hidden sm:flex items-center gap-1.5">
@@ -84,27 +84,27 @@ function ChangeCard({ change, index }: { change: Change; index: number }) {
         </div>
       </button>
 
-      <div className="grid grid-cols-2" style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-        <div className="px-6 py-4" style={{ borderRight: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="grid grid-cols-2" style={{ borderTop: "1px solid rgba(0,0,0,0.03)" }}>
+        <div className="px-6 py-4" style={{ borderRight: "1px solid rgba(0,0,0,0.03)" }}>
           <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2.5">Before</p>
           <p className="text-[14px] text-slate-500 leading-relaxed">{change.old_value}</p>
         </div>
-        <div className="px-6 py-4" style={{ background: "rgba(14,165,233,0.03)" }}>
-          <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: "rgba(56,189,248,0.5)" }}>After</p>
-          <p className="text-[14px] text-sky-300 leading-relaxed">{change.new_value}</p>
+        <div className="px-6 py-4" style={{ background: "rgba(0,0,0,0.02)" }}>
+          <p className="text-[10px] font-bold uppercase tracking-wider mb-2.5" style={{ color: "rgba(0,0,0,0.30)" }}>After</p>
+          <p className="text-[14px] text-sky-600 leading-relaxed">{change.new_value}</p>
         </div>
       </div>
 
-      <div style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+      <div style={{ borderTop: "1px solid rgba(0,0,0,0.03)" }}>
         {expanded ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="px-6 py-4"
-            style={{ background: "rgba(255,255,255,0.01)" }}
+            style={{ background: "rgba(0,0,0,0.01)" }}
           >
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Impact Assessment</p>
-            <p className="text-[14px] text-slate-300 leading-relaxed">{change.impact}</p>
+            <p className="text-[14px] text-slate-600 leading-relaxed">{change.impact}</p>
           </motion.div>
         ) : (
           <div className="px-6 py-3">
@@ -120,7 +120,7 @@ function FileDropZone({ label, file, onChange }: { label: string; file: File | n
   return (
     <div
       className={`border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer ${
-        file ? "border-sky-500/35 bg-sky-500/5" : "border-white/10 hover:border-white/18 hover:bg-white/2"
+        file ? "border-sky-500/35 bg-sky-500/5" : "border-black/10 hover:border-black/18 hover:bg-black/2"
       }`}
       onClick={() => document.getElementById(label)?.click()}
     >
@@ -131,15 +131,15 @@ function FileDropZone({ label, file, onChange }: { label: string; file: File | n
           <div className="w-10 h-10 rounded-xl bg-sky-500/15 flex items-center justify-center">
             <FileText className="w-5 h-5 text-sky-400" />
           </div>
-          <p className="text-[14px] font-semibold text-white truncate max-w-full">{file.name}</p>
+          <p className="text-[14px] font-semibold text-gray-900 truncate max-w-full">{file.name}</p>
           <Badge variant="default">{(file.size / 1024 / 1024).toFixed(1)} MB</Badge>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-black/5 flex items-center justify-center">
             <Upload className="w-5 h-5 text-slate-600" />
           </div>
-          <p className="text-[14px] font-semibold text-slate-300">{label === "old" ? "Old Policy" : "New Policy"}</p>
+          <p className="text-[14px] font-semibold text-slate-600">{label === "old" ? "Old Policy" : "New Policy"}</p>
           <p className="text-[13px] text-slate-600">Click to upload PDF</p>
         </div>
       )}
@@ -152,13 +152,13 @@ function EmptyState() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-14 flex flex-col items-center text-center gap-5"
+      className="rounded-2xl border border-black/7 bg-white p-14 flex flex-col items-center text-center gap-5"
     >
       <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
         <GitCompare className="w-8 h-8 text-violet-400" />
       </div>
       <div>
-        <p className="text-[18px] font-bold text-slate-300 mb-2">No comparison yet</p>
+        <p className="text-[18px] font-bold text-slate-600 mb-2">No comparison yet</p>
         <p className="text-[14px] text-slate-600 max-w-sm leading-relaxed">
           Upload two policy PDFs above and click Compare, or load the demo to see how policy diffing works.
         </p>
@@ -226,7 +226,7 @@ export default function ComparePage() {
           eyebrow="Policy Diff"
           title="Policy Comparison"
           subtitle="Detect authorization, coverage, and billing changes between policy versions. Every change is scored for risk and cited from the source document."
-          gradient="#a78bfa"
+          gradient="#94a3b8"
           action={
             result ? (
               <div className="flex items-center gap-3">
@@ -242,8 +242,8 @@ export default function ComparePage() {
         />
 
         {/* Upload zone */}
-        <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6 mb-7">
-          <h2 className="text-[18px] font-bold text-white mb-1.5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+        <div className="rounded-2xl border border-black/7 bg-white p-6 mb-7">
+          <h2 className="text-[18px] font-bold text-gray-900 mb-1.5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
             Upload Two Policies to Compare
           </h2>
           <p className="text-[15px] text-slate-400 mb-5">
@@ -252,7 +252,7 @@ export default function ComparePage() {
           <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-center">
             <FileDropZone label="old" file={oldFile} onChange={setOldFile} />
             <div className="flex flex-col items-center gap-1.5">
-              <div className="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full border border-black/10 bg-black/5 flex items-center justify-center">
                 <ArrowRight className="w-4 h-4 text-slate-500" />
               </div>
               <p className="text-[11px] text-slate-700 font-mono">vs</p>
@@ -263,7 +263,7 @@ export default function ComparePage() {
           {error && (
             <div className="mt-4 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/8 border border-red-500/18">
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-              <p className="text-[13px] text-red-300">{error}</p>
+              <p className="text-[13px] text-red-500">{error}</p>
             </div>
           )}
 
@@ -305,10 +305,10 @@ export default function ComparePage() {
               )}
 
               {/* Summary */}
-              <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
+              <div className="rounded-2xl border border-black/7 bg-white p-7">
                 <div className="flex items-start justify-between gap-6 mb-5">
                   <div>
-                    <h2 className="text-[20px] font-bold text-white mb-2" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                    <h2 className="text-[20px] font-bold text-gray-900 mb-2" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                       Comparison Summary
                     </h2>
                     <div className="flex items-center gap-2 text-[13px] text-slate-500">
@@ -320,10 +320,10 @@ export default function ComparePage() {
                     </div>
                   </div>
                 </div>
-                <p className="text-[15px] text-slate-300 leading-relaxed mb-6">{result.summary}</p>
+                <p className="text-[15px] text-slate-600 leading-relaxed mb-6">{result.summary}</p>
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-5 rounded-xl bg-white/4 border border-white/6">
-                    <p className="text-4xl font-black text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                  <div className="text-center p-5 rounded-xl bg-black/4 border border-black/6">
+                    <p className="text-4xl font-black text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                       {result.total_changes}
                     </p>
                     <p className="text-[13px] text-slate-400 mt-1.5">Total Changes</p>
@@ -352,14 +352,14 @@ export default function ComparePage() {
                     className={`text-[13px] px-3.5 py-1.5 rounded-lg border transition-all capitalize font-semibold ${
                       filter === f
                         ? "border-sky-500/40 bg-sky-500/14 text-sky-400"
-                        : "border-white/8 bg-white/4 text-slate-400 hover:text-slate-200 hover:border-white/14"
+                        : "border-black/8 bg-black/4 text-slate-400 hover:text-slate-700 hover:border-black/14"
                     }`}
                   >
                     {f}
                   </button>
                 ))}
                 <span className="ml-auto text-[13px] text-slate-500">
-                  <span className="font-semibold text-white font-mono">{filteredChanges.length}</span> changes
+                  <span className="font-semibold text-gray-900 font-mono">{filteredChanges.length}</span> changes
                 </span>
               </div>
 

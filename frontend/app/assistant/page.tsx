@@ -21,7 +21,7 @@ function renderInlineBold(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) =>
     part.startsWith("**") && part.endsWith("**")
-      ? <strong key={i} className="text-white font-semibold">{part.slice(2, -2)}</strong>
+      ? <strong key={i} className="text-gray-900 font-semibold">{part.slice(2, -2)}</strong>
       : <span key={i}>{part}</span>
   );
 }
@@ -35,7 +35,7 @@ function renderAnswerText(text: string) {
     if (!paraGroup.length) return;
     const combined = paraGroup.join(" ").trim();
     if (combined) nodes.push(
-      <p key={`p-${nodes.length}`} className="text-[15px] text-slate-200 leading-relaxed">
+      <p key={`p-${nodes.length}`} className="text-[15px] text-slate-700 leading-relaxed">
         {renderInlineBold(combined)}
       </p>
     );
@@ -51,7 +51,7 @@ function renderAnswerText(text: string) {
       nodes.push(
         <div key={`b-${nodes.length}`} className="flex items-start gap-2.5">
           <div className="w-1.5 h-1.5 rounded-full bg-sky-400/70 mt-2.25 shrink-0" />
-          <p className="text-[15px] text-slate-200 leading-relaxed">{renderInlineBold(bullet[1])}</p>
+          <p className="text-[15px] text-slate-700 leading-relaxed">{renderInlineBold(bullet[1])}</p>
         </div>
       );
       continue;
@@ -62,7 +62,7 @@ function renderAnswerText(text: string) {
       nodes.push(
         <div key={`n-${nodes.length}`} className="flex items-start gap-2.5">
           <span className="text-[11px] font-bold text-sky-400/80 mt-0.5 shrink-0 w-4 font-mono">{num[1]}.</span>
-          <p className="text-[15px] text-slate-200 leading-relaxed">{renderInlineBold(num[2])}</p>
+          <p className="text-[15px] text-slate-700 leading-relaxed">{renderInlineBold(num[2])}</p>
         </div>
       );
       continue;
@@ -71,7 +71,7 @@ function renderAnswerText(text: string) {
   }
   flushPara();
 
-  if (!nodes.length) return <p className="text-[15px] text-slate-200 leading-relaxed">{text}</p>;
+  if (!nodes.length) return <p className="text-[15px] text-slate-700 leading-relaxed">{text}</p>;
   return <div className="space-y-2">{nodes}</div>;
 }
 
@@ -161,7 +161,7 @@ export default function AssistantPage() {
           eyebrow="Policy Intelligence"
           title="AI Policy Assistant"
           subtitle="Ask any question about your uploaded healthcare policies. Every answer is grounded in source citations with page references and confidence scoring."
-          gradient="#818cf8"
+          gradient="#94a3b8"
           action={
             selectedDoc ? (
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-sky-500/8 border border-sky-500/18 text-sky-400 text-[13px] font-semibold max-w-xs truncate">
@@ -177,7 +177,7 @@ export default function AssistantPage() {
         <div className="grid gap-7 items-start" style={{ gridTemplateColumns: "minmax(0,58fr) minmax(0,42fr)" }}>
 
           {/* ── Chat Column ── */}
-          <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 overflow-hidden flex flex-col" style={{ minHeight: 600 }}>
+          <div className="rounded-2xl border border-black/7 bg-white overflow-hidden flex flex-col" style={{ minHeight: 600 }}>
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-8" style={{ maxHeight: 660 }}>
 
@@ -187,7 +187,7 @@ export default function AssistantPage() {
                     <Bot className="w-8 h-8 text-indigo-400" />
                   </div>
                   <div>
-                    <p className="text-[18px] font-bold text-slate-300 mb-2">Ready to answer questions</p>
+                    <p className="text-[18px] font-bold text-slate-600 mb-2">Ready to answer questions</p>
                     <p className="text-[14px] text-slate-600 max-w-xs leading-relaxed">
                       Upload a policy document first, then ask any question about it below.
                     </p>
@@ -211,10 +211,10 @@ export default function AssistantPage() {
                   <div className={`flex-1 max-w-[92%] space-y-3 ${msg.role === "user" ? "items-end" : ""}`}>
                     <div className={`rounded-2xl px-5 py-4 ${
                       msg.role === "user"
-                        ? "bg-indigo-600/18 border border-indigo-500/18 text-slate-200 ml-auto text-[15px] leading-relaxed"
+                        ? "bg-indigo-600/18 border border-indigo-500/18 text-slate-700 ml-auto text-[15px] leading-relaxed"
                         : msg.isError
                         ? "bg-red-500/8 border border-red-500/18 text-red-300 text-[15px] leading-relaxed"
-                        : "bg-white/4 border border-white/7"
+                        : "bg-black/4 border border-black/7"
                     }`}>
                       {msg.role === "assistant" && !msg.isError
                         ? renderAnswerText(msg.content)
@@ -225,7 +225,7 @@ export default function AssistantPage() {
                       <div className="space-y-4 pl-1">
                         <div className="flex items-center gap-3">
                           <ConfidenceMeter score={msg.response.confidence} showBar={false} />
-                          <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.05)" }} />
+                          <div className="flex-1 h-px" style={{ background: "rgba(0,0,0,0.03)" }} />
                           <span className="text-[11px] text-slate-600 font-mono shrink-0">
                             {msg.response.citations.length} source{msg.response.citations.length !== 1 ? "s" : ""} retrieved
                           </span>
@@ -280,15 +280,15 @@ export default function AssistantPage() {
                         )}
 
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="rounded-xl border border-white/6 bg-white/3 p-4">
+                          <div className="rounded-xl border border-black/6 bg-black/3 p-4">
                             <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2.5">Supporting Evidence</p>
-                            <p className="text-[13px] text-slate-300 leading-relaxed">{msg.response.evidence}</p>
+                            <p className="text-[13px] text-slate-600 leading-relaxed">{msg.response.evidence}</p>
                           </div>
                           <div className="rounded-xl border border-amber-500/14 bg-amber-500/5 p-4">
                             <p className="text-[10px] font-bold text-amber-500 uppercase tracking-wider mb-2.5 flex items-center gap-1">
                               <Lightbulb className="w-3 h-3" /> Recommended Action
                             </p>
-                            <p className="text-[13px] text-slate-300 leading-relaxed">{msg.response.next_action}</p>
+                            <p className="text-[13px] text-slate-600 leading-relaxed">{msg.response.next_action}</p>
                           </div>
                         </div>
 
@@ -367,7 +367,7 @@ export default function AssistantPage() {
                   <div className="w-8 h-8 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
                     <Bot className="w-4 h-4" />
                   </div>
-                  <div className="bg-white/4 border border-white/7 rounded-2xl px-5 py-4 flex items-center gap-2">
+                  <div className="bg-black/4 border border-black/7 rounded-2xl px-5 py-4 flex items-center gap-2">
                     <div className="loading-dot" /><div className="loading-dot" /><div className="loading-dot" />
                     <span className="text-[14px] text-slate-600 ml-2">Searching policy documents...</span>
                   </div>
@@ -377,14 +377,14 @@ export default function AssistantPage() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-white/5 p-5">
+            <div className="border-t border-black/5 p-5">
               <div className="flex gap-3">
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && ask(input)}
                   placeholder="Ask about prior authorization, coverage, billing codes..."
-                  className="flex-1 bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-[15px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-sky-500/35 transition-colors"
+                  className="flex-1 bg-black/4 border border-black/8 rounded-xl px-4 py-3 text-[15px] text-slate-700 placeholder:text-slate-600 focus:outline-none focus:border-black/20 transition-colors"
                 />
                 <Button
                   onClick={() => ask(input)}
@@ -401,10 +401,10 @@ export default function AssistantPage() {
           {/* ── Right Panel ── */}
           <div className="space-y-5">
             {/* Suggested questions */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
+            <div className="rounded-2xl border border-black/7 bg-white p-7">
               <div className="flex items-center gap-2.5 mb-5">
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                <p className="text-[17px] font-bold text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                <p className="text-[17px] font-bold text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                   {lastResponse?.follow_up_questions?.length ? "Follow-up Questions" : "Suggested Questions"}
                 </p>
               </div>
@@ -423,15 +423,15 @@ export default function AssistantPage() {
             </div>
 
             {/* How it works */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
-              <p className="text-[17px] font-bold text-white mb-5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+            <div className="rounded-2xl border border-black/7 bg-white p-7">
+              <p className="text-[17px] font-bold text-gray-900 mb-5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                 How It Works
               </p>
               <div className="space-y-4">
                 {[
-                  { step: "1", text: "Your question is embedded using BAAI/bge-small-en-v1.5", color: "#38bdf8" },
-                  { step: "2", text: "Top 5 most relevant policy chunks are retrieved",           color: "#818cf8" },
-                  { step: "3", text: "AI generates an answer with source mapping",                 color: "#a78bfa" },
+                  { step: "1", text: "Your question is embedded using BAAI/bge-small-en-v1.5", color: "#111827" },
+                  { step: "2", text: "Top 5 most relevant policy chunks are retrieved",           color: "#94a3b8" },
+                  { step: "3", text: "AI generates an answer with source mapping",                 color: "#94a3b8" },
                   { step: "4", text: "Confidence is scored across all evidence",                   color: "#34d399" },
                 ].map((s) => (
                   <div key={s.step} className="flex gap-3.5 items-start">
@@ -446,14 +446,14 @@ export default function AssistantPage() {
             </div>
 
             {/* Session context — real data */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
-              <p className="text-[17px] font-bold text-white mb-4" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+            <div className="rounded-2xl border border-black/7 bg-white p-7">
+              <p className="text-[17px] font-bold text-gray-900 mb-4" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                 Session Context
               </p>
               <div className="space-y-3 text-[14px]">
                 {[
-                  { label: "Questions asked",    value: String(messages.filter((m) => m.role === "user").length), valueColor: "text-slate-200" },
-                  { label: "Citations retrieved", value: String(totalCitations),                                   valueColor: "text-slate-200" },
+                  { label: "Questions asked",    value: String(messages.filter((m) => m.role === "user").length), valueColor: "text-slate-700" },
+                  { label: "Citations retrieved", value: String(totalCitations),                                   valueColor: "text-slate-700" },
                   { label: "Avg confidence",      value: avgConf,                                                   valueColor: avgConf === "—" ? "text-slate-500" : "text-emerald-400" },
                   { label: "Source document",     value: srcDocLabel,                                               valueColor: allDocNames.length > 0 ? "text-sky-400" : "text-slate-600" },
                 ].map((item) => (

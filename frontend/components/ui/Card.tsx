@@ -16,17 +16,16 @@ export function GlassCard({ children, className, style, onClick }: GlassCardProp
     <motion.div
       whileHover={{
         y: -2,
-        borderColor: "rgba(255,255,255,0.11)",
-        boxShadow: "0 8px 40px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset",
+        borderColor: "rgba(0,0,0,0.12)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)",
       }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       onClick={onClick}
       style={{
-        background: "radial-gradient(120% 80% at 50% 0%, rgba(255,255,255,0.025) 0%, rgba(9,15,30,0.82) 70%)",
-        border: "1px solid rgba(255,255,255,0.08)",
+        background: "#ffffff",
+        border: "1px solid rgba(0,0,0,0.07)",
         borderRadius: 20,
-        backdropFilter: "blur(20px)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.25), 0 4px 20px rgba(0,0,0,0.18)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04)",
         cursor: onClick ? "pointer" : undefined,
         ...style,
       }}
@@ -48,20 +47,19 @@ interface StatCardProps {
   glow?: string;
 }
 
-export function StatCard({ value, label, delta, icon: Icon, from = "#0ea5e9", to = "#6366f1", glow }: StatCardProps) {
+export function StatCard({ value, label, delta, icon: Icon, from = "#374151", to = "#6b7280" }: StatCardProps) {
   return (
     <motion.div
-      whileHover={{ y: -3, borderColor: "rgba(255,255,255,0.12)" }}
+      whileHover={{ y: -2, borderColor: "rgba(0,0,0,0.12)", boxShadow: "0 6px 24px rgba(0,0,0,0.08)" }}
       transition={{ duration: 0.2 }}
       style={{
         position: "relative",
         borderRadius: 16,
         padding: 20,
-        border: "1px solid rgba(255,255,255,0.07)",
+        border: "1px solid rgba(0,0,0,0.07)",
         overflow: "hidden",
-        background: `linear-gradient(135deg, ${from}10, ${to}07)`,
-        boxShadow: glow ? `0 0 24px ${glow}` : undefined,
-        backdropFilter: "blur(20px)",
+        background: "#ffffff",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         cursor: "pointer",
       }}
     >
@@ -75,8 +73,8 @@ export function StatCard({ value, label, delta, icon: Icon, from = "#0ea5e9", to
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: `${from}1a`,
-              border: `1px solid ${from}28`,
+              background: "rgba(0,0,0,0.05)",
+              border: "1px solid rgba(0,0,0,0.08)",
             }}
           >
             <Icon style={{ width: 20, height: 20, color: from }} />
@@ -88,7 +86,7 @@ export function StatCard({ value, label, delta, icon: Icon, from = "#0ea5e9", to
         style={{
           fontSize: 30,
           fontWeight: 900,
-          color: "white",
+          color: "#111827",
           letterSpacing: "-0.02em",
           lineHeight: 1,
           margin: 0,
@@ -97,7 +95,7 @@ export function StatCard({ value, label, delta, icon: Icon, from = "#0ea5e9", to
       >
         {value}
       </p>
-      <p style={{ fontSize: 13, color: "rgba(148,163,184,0.8)", marginTop: 4, fontWeight: 500 }}>{label}</p>
+      <p style={{ fontSize: 13, color: "#6b7280", marginTop: 4, fontWeight: 500 }}>{label}</p>
       {delta && (
         <p style={{ fontSize: 12, color: from, marginTop: 8, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {delta}
@@ -107,7 +105,7 @@ export function StatCard({ value, label, delta, icon: Icon, from = "#0ea5e9", to
   );
 }
 
-// ── Legacy exports for backward compatibility ──────────────────────────────────
+// ── Legacy Card components ─────────────────────────────────────────────────────
 interface CardProps {
   children: React.ReactNode;
   className?: string;
@@ -119,7 +117,7 @@ export function Card({ children, className, glow, hover }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-white/8 bg-[#0d1525]/80 backdrop-blur-sm",
+        "rounded-xl border border-black/7 bg-white",
         glow && "glow-blue",
         hover && "card-hover cursor-pointer",
         className
@@ -132,7 +130,7 @@ export function Card({ children, className, glow, hover }: CardProps) {
 
 export function CardHeader({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("p-5 border-b border-white/5", className)}>
+    <div className={cn("p-5 border-b border-black/6", className)}>
       {children}
     </div>
   );
@@ -144,7 +142,7 @@ export function CardContent({ children, className }: { children: React.ReactNode
 
 export function CardTitle({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <h3 className={cn("text-sm font-semibold text-slate-200", className)}>
+    <h3 className={cn("text-sm font-semibold text-gray-800", className)}>
       {children}
     </h3>
   );

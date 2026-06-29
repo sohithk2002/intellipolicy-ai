@@ -79,7 +79,7 @@ export function CommandPalette({ open, onClose }: Props) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.12 }}
             className="fixed inset-0 z-50"
-            style={{ background: "rgba(0,0,0,0.64)", backdropFilter: "blur(4px)" }}
+            style={{ background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)" }}
             onClick={onClose}
           />
 
@@ -91,16 +91,16 @@ export function CommandPalette({ open, onClose }: Props) {
             className="fixed top-[18%] left-1/2 -translate-x-1/2 w-full max-w-[520px] z-50 px-4"
           >
             <div
-              className="rounded-2xl border border-white/12 overflow-hidden"
+              className="rounded-2xl overflow-hidden"
               style={{
-                background: "rgba(7, 12, 24, 0.97)",
-                backdropFilter: "blur(28px)",
-                boxShadow: "0 40px 100px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.07), inset 0 1px 0 rgba(255,255,255,0.05)",
+                background: "#ffffff",
+                border: "1px solid rgba(0,0,0,0.09)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.08)",
               }}
             >
               {/* Search row */}
-              <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/6">
-                <Search className="w-4.5 h-4.5 text-slate-500 shrink-0" />
+              <div className="flex items-center gap-3 px-4 py-3.5 border-b border-black/6">
+                <Search className="w-4.5 h-4.5 text-gray-400 shrink-0" />
                 <input
                   ref={inputRef}
                   value={query}
@@ -109,9 +109,9 @@ export function CommandPalette({ open, onClose }: Props) {
                     setSelected(0);
                   }}
                   placeholder="Search actions and pages..."
-                  className="flex-1 bg-transparent text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none"
+                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
                 />
-                <kbd className="text-[10px] text-slate-600 bg-white/4 border border-white/8 px-1.5 py-0.5 rounded font-mono shrink-0">
+                <kbd className="text-[10px] text-gray-400 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded font-mono shrink-0">
                   ESC
                 </kbd>
               </div>
@@ -119,7 +119,7 @@ export function CommandPalette({ open, onClose }: Props) {
               {/* Results */}
               <div className="py-1.5 max-h-80 overflow-y-auto">
                 {filtered.length === 0 ? (
-                  <p className="text-xs text-slate-600 text-center py-8">
+                  <p className="text-xs text-gray-400 text-center py-8">
                     No actions found for &ldquo;{query}&rdquo;
                   </p>
                 ) : (
@@ -128,7 +128,7 @@ export function CommandPalette({ open, onClose }: Props) {
                     if (!items.length) return null;
                     return (
                       <div key={cat}>
-                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest px-4 pt-3 pb-1.5">
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-4 pt-3 pb-1.5">
                           {cat}
                         </p>
                         {items.map((cmd) => {
@@ -139,7 +139,7 @@ export function CommandPalette({ open, onClose }: Props) {
                             <button
                               key={cmd.href}
                               className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
-                                isSel ? "bg-sky-500/10" : "hover:bg-white/3"
+                                isSel ? "bg-gray-100" : "hover:bg-gray-50"
                               }`}
                               onClick={() => navigate(cmd.href)}
                               onMouseEnter={() => setSelected(gIdx)}
@@ -147,8 +147,8 @@ export function CommandPalette({ open, onClose }: Props) {
                               <div
                                 className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${
                                   isSel
-                                    ? "bg-sky-500/18 text-sky-400"
-                                    : "bg-white/5 text-slate-500"
+                                    ? "bg-gray-900 text-white"
+                                    : "bg-gray-100 text-gray-500"
                                 }`}
                               >
                                 <Icon className="w-4 h-4" />
@@ -156,16 +156,16 @@ export function CommandPalette({ open, onClose }: Props) {
                               <div className="flex-1 min-w-0">
                                 <p
                                   className={`text-sm font-semibold transition-colors ${
-                                    isSel ? "text-sky-400" : "text-slate-200"
+                                    isSel ? "text-gray-900" : "text-gray-700"
                                   }`}
                                   style={{ fontFamily: "var(--font-heading, 'Plus Jakarta Sans', sans-serif)" }}
                                 >
                                   {cmd.label}
                                 </p>
-                                <p className="text-xs text-slate-600 truncate">{cmd.desc}</p>
+                                <p className="text-xs text-gray-400 truncate">{cmd.desc}</p>
                               </div>
                               {isSel && (
-                                <ArrowRight className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                                <ArrowRight className="w-3.5 h-3.5 text-gray-600 shrink-0" />
                               )}
                             </button>
                           );
@@ -177,15 +177,15 @@ export function CommandPalette({ open, onClose }: Props) {
               </div>
 
               {/* Footer hint */}
-              <div className="px-4 py-2.5 border-t border-white/5 flex items-center gap-4 text-[10px] text-slate-700">
+              <div className="px-4 py-2.5 border-t border-black/5 flex items-center gap-4 text-[10px] text-gray-400">
                 <span className="flex items-center gap-1">
-                  <kbd className="bg-white/5 border border-white/8 rounded px-1 font-mono">↑↓</kbd> navigate
+                  <kbd className="bg-gray-100 border border-gray-200 rounded px-1 font-mono">↑↓</kbd> navigate
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="bg-white/5 border border-white/8 rounded px-1 font-mono">↵</kbd> open
+                  <kbd className="bg-gray-100 border border-gray-200 rounded px-1 font-mono">↵</kbd> open
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="bg-white/5 border border-white/8 rounded px-1 font-mono">ESC</kbd> close
+                  <kbd className="bg-gray-100 border border-gray-200 rounded px-1 font-mono">ESC</kbd> close
                 </span>
               </div>
             </div>

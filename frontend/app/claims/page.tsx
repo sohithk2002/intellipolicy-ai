@@ -142,8 +142,8 @@ export default function ClaimsPage() {
 
           {/* ── Claim Input Form ── */}
           <div className="space-y-5">
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
-              <h2 className="text-[20px] font-bold text-white mb-1.5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+            <div className="rounded-2xl border border-black/7 bg-white p-7">
+              <h2 className="text-[20px] font-bold text-gray-900 mb-1.5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                 Claim Information
               </h2>
               <p className="text-[15px] text-slate-400 mb-6">Enter claim details to validate against extracted policy rules</p>
@@ -162,7 +162,7 @@ export default function ClaimsPage() {
                       value={form[field.key as keyof typeof form]}
                       onChange={(e) => update(field.key, e.target.value)}
                       placeholder={field.placeholder}
-                      className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-[15px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-sky-500/40 transition-colors"
+                      className="w-full bg-black/4 border border-black/8 rounded-xl px-4 py-3 text-[15px] text-slate-700 placeholder:text-slate-600 focus:outline-none focus:border-black/20 transition-colors"
                     />
                   </div>
                 ))}
@@ -171,10 +171,10 @@ export default function ClaimsPage() {
                   <select
                     value={form.plan_type}
                     onChange={(e) => update("plan_type", e.target.value)}
-                    className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3 text-[15px] text-slate-200 focus:outline-none focus:border-sky-500/40 transition-colors appearance-none"
+                    className="w-full bg-black/4 border border-black/8 rounded-xl px-4 py-3 text-[15px] text-slate-700 focus:outline-none focus:border-black/20 transition-colors appearance-none"
                   >
                     {PLAN_TYPES.map((t) => (
-                      <option key={t} value={t} className="bg-[#090f1e]">{t}</option>
+                      <option key={t} value={t} className="bg-white">{t}</option>
                     ))}
                   </select>
                 </div>
@@ -204,10 +204,10 @@ export default function ClaimsPage() {
             </div>
 
             {/* Demo Cases */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
+            <div className="rounded-2xl border border-black/7 bg-white p-7">
               <div className="flex items-center gap-2.5 mb-1.5">
                 <Zap className="w-4 h-4 text-amber-400" />
-                <p className="text-[16px] font-bold text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                <p className="text-[16px] font-bold text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                   Load Demo Claim
                 </p>
               </div>
@@ -217,13 +217,13 @@ export default function ClaimsPage() {
                   <button
                     key={i}
                     onClick={() => loadDemoCase(demo)}
-                    className="w-full flex items-center gap-4 p-5 rounded-xl border border-white/6 bg-white/2 hover:bg-white/5 hover:border-white/12 transition-all text-left"
+                    className="w-full flex items-center gap-4 p-5 rounded-xl border border-black/6 bg-black/2 hover:bg-black/5 hover:border-black/12 transition-all text-left"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/7 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-black/5 border border-black/7 flex items-center justify-center shrink-0">
                       <FileText className="w-4 h-4 text-sky-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[14px] font-semibold text-slate-200">{demo.procedure}</p>
+                      <p className="text-[14px] font-semibold text-slate-700">{demo.procedure}</p>
                       <p className="text-[12px] text-slate-500 font-mono mt-0.5">CPT {demo.cpt_code} · {demo.plan_type}</p>
                     </div>
                     <Badge variant="warning" className="shrink-0">Demo</Badge>
@@ -243,13 +243,13 @@ export default function ClaimsPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-8 flex flex-col items-center gap-5"
+                  className="rounded-2xl border border-black/7 bg-white p-8 flex flex-col items-center gap-5"
                 >
                   <div className="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-500/18 flex items-center justify-center">
                     <ShieldCheck className="w-8 h-8 text-sky-400 animate-pulse" />
                   </div>
                   <div className="text-center">
-                    <p className="text-[18px] font-bold text-white mb-1" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                    <p className="text-[18px] font-bold text-gray-900 mb-1" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                       Validating Claim...
                     </p>
                     <p className="text-[14px] text-slate-400">Checking against extracted policy rules</p>
@@ -259,9 +259,9 @@ export default function ClaimsPage() {
                   </div>
                   <div className="w-full space-y-2.5">
                     {TIMELINE_STEPS.map((step, i) => (
-                      <div key={step} className={`flex items-center gap-3 text-[14px] transition-all ${i <= timelineStep ? "text-slate-300" : "text-slate-700"}`}>
+                      <div key={step} className={`flex items-center gap-3 text-[14px] transition-all ${i <= timelineStep ? "text-slate-600" : "text-slate-700"}`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all ${
-                          i < timelineStep ? "bg-emerald-500/20 text-emerald-400" : i === timelineStep ? "bg-sky-500/20 text-sky-400 pulse-glow" : "bg-white/5"
+                          i < timelineStep ? "bg-emerald-500/20 text-emerald-400" : i === timelineStep ? "bg-sky-500/20 text-sky-400 pulse-glow" : "bg-black/5"
                         }`}>
                           {i < timelineStep ? <CheckCircle2 className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
                         </div>
@@ -283,13 +283,13 @@ export default function ClaimsPage() {
                     <div className="flex justify-center mb-5">
                       <ConfidenceMeter score={result.confidence} showBar={false} />
                     </div>
-                    <div className="border-t border-white/8 pt-5">
-                      <p className="text-[15px] text-slate-300 leading-relaxed">{result.reason}</p>
+                    <div className="border-t border-black/8 pt-5">
+                      <p className="text-[15px] text-slate-600 leading-relaxed">{result.reason}</p>
                     </div>
                   </div>
 
                   {/* Validation pipeline */}
-                  <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6">
+                  <div className="rounded-2xl border border-black/7 bg-white p-6">
                     <p className="text-[12px] font-bold text-slate-500 uppercase tracking-wider mb-4">Validation Pipeline</p>
                     <div className="space-y-3.5">
                       {TIMELINE_STEPS.map((step) => {
@@ -301,7 +301,7 @@ export default function ClaimsPage() {
                         if (isSkipped) {
                           return (
                             <div key={step} className="flex items-center gap-3 text-[14px] text-slate-700">
-                              <div className="w-4 h-4 rounded-full border border-white/10 shrink-0" />
+                              <div className="w-4 h-4 rounded-full border border-black/10 shrink-0" />
                               {step}
                               <span className="ml-1 text-[11px] text-slate-700 font-medium">(skipped — rule matched)</span>
                             </div>
@@ -330,7 +330,7 @@ export default function ClaimsPage() {
                         }
 
                         return (
-                          <div key={step} className={`flex items-center gap-3 text-[14px] ${active ? "text-slate-300" : "text-slate-600"}`}>
+                          <div key={step} className={`flex items-center gap-3 text-[14px] ${active ? "text-slate-600" : "text-slate-600"}`}>
                             {active
                               ? <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                               : <AlertTriangle className="w-4 h-4 text-amber-500/60 shrink-0" />
@@ -343,12 +343,12 @@ export default function ClaimsPage() {
                   </div>
 
                   {/* Policy source */}
-                  <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6">
+                  <div className="rounded-2xl border border-black/7 bg-white p-6">
                     <div className="flex items-center gap-2.5 mb-3">
                       <FileText className="w-4 h-4 text-sky-400" />
-                      <p className="text-[15px] font-bold text-white">Policy Source</p>
+                      <p className="text-[15px] font-bold text-gray-900">Policy Source</p>
                     </div>
-                    <p className="text-[15px] text-slate-300">{result.policy_source}</p>
+                    <p className="text-[15px] text-slate-600">{result.policy_source}</p>
                     {result.source_page && (
                       <Badge variant="info" className="mt-3">Page {result.source_page}</Badge>
                     )}
@@ -362,7 +362,7 @@ export default function ClaimsPage() {
                       </p>
                       <ul className="space-y-3">
                         {result.missing_info.map((item, i) => (
-                          <li key={i} className="text-[14px] text-slate-300 flex items-center gap-2.5">
+                          <li key={i} className="text-[14px] text-slate-600 flex items-center gap-2.5">
                             <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />{item}
                           </li>
                         ))}
@@ -372,15 +372,15 @@ export default function ClaimsPage() {
 
                   {/* Next steps */}
                   {result.next_steps.length > 0 && (
-                    <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6">
-                      <p className="text-[16px] font-bold text-white mb-5">Recommended Next Steps</p>
+                    <div className="rounded-2xl border border-black/7 bg-white p-6">
+                      <p className="text-[16px] font-bold text-gray-900 mb-5">Recommended Next Steps</p>
                       <div className="space-y-4">
                         {result.next_steps.map((step, i) => (
                           <div key={i} className="flex items-start gap-3">
                             <span className="w-6 h-6 rounded-full bg-sky-500/14 text-sky-400 text-[12px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                               {i + 1}
                             </span>
-                            <p className="text-[14px] text-slate-300 leading-relaxed">{step}</p>
+                            <p className="text-[14px] text-slate-600 leading-relaxed">{step}</p>
                           </div>
                         ))}
                       </div>
@@ -404,9 +404,9 @@ export default function ClaimsPage() {
                   key="empty"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-12 flex flex-col items-center gap-5 text-center"
+                  className="rounded-2xl border border-black/7 bg-white p-12 flex flex-col items-center gap-5 text-center"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-white/4 border border-white/7 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-2xl bg-black/4 border border-black/7 flex items-center justify-center">
                     <ShieldCheck className="w-8 h-8 text-slate-600" />
                   </div>
                   <div>
@@ -423,7 +423,7 @@ export default function ClaimsPage() {
                   <div className="flex flex-col items-center gap-2 mt-2">
                     {TIMELINE_STEPS.map((step) => (
                       <div key={step} className="flex items-center gap-2 text-[13px] text-slate-700">
-                        <div className="w-3.5 h-3.5 rounded-full border border-white/10" />
+                        <div className="w-3.5 h-3.5 rounded-full border border-black/10" />
                         {step}
                       </div>
                     ))}

@@ -28,7 +28,7 @@ function TraceDetail({ record }: { record: AuditRecord }) {
         className="p-7 space-y-6"
       >
         {/* Question block */}
-        <div className="rounded-xl border border-white/6 bg-white/2 p-5">
+        <div className="rounded-xl border border-black/6 bg-black/2 p-5">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <MessageSquare className="w-3.5 h-3.5 text-sky-400 shrink-0" />
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Question</span>
@@ -38,7 +38,7 @@ function TraceDetail({ record }: { record: AuditRecord }) {
               <ConfidenceMeter score={record.confidence} showBar={false} />
             </div>
           </div>
-          <p className="text-sm font-semibold text-white leading-relaxed">{record.question}</p>
+          <p className="text-sm font-semibold text-gray-900 leading-relaxed">{record.question}</p>
         </div>
 
         {/* Reasoning pipeline */}
@@ -66,7 +66,7 @@ function TraceDetail({ record }: { record: AuditRecord }) {
                     )}
                   </div>
                   <div className={`min-w-0 ${i < record.steps.length - 1 ? "pb-4" : "pb-0"}`}>
-                    <p className="text-[13px] font-bold text-white leading-tight">{step.step}</p>
+                    <p className="text-[13px] font-bold text-gray-900 leading-tight">{step.step}</p>
                     <p className="text-[12px] text-slate-400 mt-1 leading-relaxed">{step.description}</p>
                     <p className="text-[10px] text-slate-700 mt-1 font-mono">{formatDate(step.timestamp)}</p>
                   </div>
@@ -80,7 +80,7 @@ function TraceDetail({ record }: { record: AuditRecord }) {
         {record.reasoning_summary && (
           <div className="rounded-xl border border-indigo-500/14 bg-indigo-500/5 p-5">
             <p className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest mb-3">AI Reasoning Summary</p>
-            <p className="text-[13px] text-slate-300 leading-relaxed">{record.reasoning_summary}</p>
+            <p className="text-[13px] text-slate-600 leading-relaxed">{record.reasoning_summary}</p>
           </div>
         )}
 
@@ -115,7 +115,7 @@ function TraceDetail({ record }: { record: AuditRecord }) {
         {/* Final answer */}
         <div className="rounded-xl border border-emerald-500/14 bg-emerald-500/5 p-5">
           <p className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest mb-3">Final Answer</p>
-          <p className="text-[13px] text-slate-300 leading-relaxed">{record.final_answer}</p>
+          <p className="text-[13px] text-slate-600 leading-relaxed">{record.final_answer}</p>
         </div>
 
         {/* Pages retrieved */}
@@ -135,7 +135,7 @@ function TraceDetail({ record }: { record: AuditRecord }) {
 function EmptyDetail() {
   return (
     <div className="h-full flex flex-col items-center justify-center text-center gap-4 p-8">
-      <div className="w-14 h-14 rounded-2xl bg-white/4 border border-white/7 flex items-center justify-center">
+      <div className="w-14 h-14 rounded-2xl bg-black/4 border border-black/7 flex items-center justify-center">
         <MousePointerClick className="w-6 h-6 text-slate-600" />
       </div>
       <div>
@@ -151,7 +151,7 @@ function EmptyDetail() {
 function EmptyState() {
   return (
     <div className="flex-1 flex flex-col items-center justify-center text-center gap-4 p-12">
-      <div className="w-16 h-16 rounded-2xl bg-white/4 border border-white/7 flex items-center justify-center">
+      <div className="w-16 h-16 rounded-2xl bg-black/4 border border-black/7 flex items-center justify-center">
         <ScrollText className="w-8 h-8 text-slate-600" />
       </div>
       <div>
@@ -192,9 +192,9 @@ export default function AuditPage() {
   const totalPages     = records.reduce((s, r) => s + r.retrieved_pages.length, 0);
 
   const statCards = [
-    { label: "Total Sessions",  value: totalSessions === 0 ? "0" : String(totalSessions), icon: MessageSquare, color: "#38bdf8" },
-    { label: "Avg Confidence",  value: avgConf,                                              icon: Brain,         color: "#818cf8" },
-    { label: "Pages Retrieved", value: totalPages === 0 ? "0" : String(totalPages),          icon: FileText,      color: "#a78bfa" },
+    { label: "Total Sessions",  value: totalSessions === 0 ? "0" : String(totalSessions), icon: MessageSquare, color: "#111827" },
+    { label: "Avg Confidence",  value: avgConf,                                              icon: Brain,         color: "#94a3b8" },
+    { label: "Pages Retrieved", value: totalPages === 0 ? "0" : String(totalPages),          icon: FileText,      color: "#94a3b8" },
     { label: "Avg Latency",     value: "~2s",                                                icon: Clock,         color: "#34d399" },
   ];
 
@@ -205,7 +205,7 @@ export default function AuditPage() {
           eyebrow="Compliance"
           title="Audit Trail"
           subtitle="Full traceability — every question, retrieval step, reasoning chain, and answer"
-          gradient="#34d399"
+          gradient="#94a3b8"
           action={
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/8 border border-emerald-500/14 px-2.5 py-1.5 rounded-lg">
@@ -232,7 +232,7 @@ export default function AuditPage() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.06 }}
-                  className="rounded-2xl border border-white/7 bg-[#090f1e]/70 px-5 py-4 flex items-center gap-4"
+                  className="rounded-2xl border border-black/7 bg-white px-5 py-4 flex items-center gap-4"
                 >
                   <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
                     style={{ background: `${s.color}12`, border: `1px solid ${s.color}20` }}>
@@ -253,15 +253,15 @@ export default function AuditPage() {
           <div className="flex-1 flex gap-5 min-h-0">
 
             {/* Left: record list */}
-            <div className="w-80 shrink-0 flex flex-col rounded-2xl border border-white/7 bg-[#090f1e]/70 overflow-hidden">
-              <div className="px-3.5 py-3 border-b border-white/5 shrink-0">
+            <div className="w-80 shrink-0 flex flex-col rounded-2xl border border-black/7 bg-white overflow-hidden">
+              <div className="px-3.5 py-3 border-b border-black/5 shrink-0">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-600" />
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search records..."
-                    className="w-full pl-8 pr-3 py-2 bg-white/4 border border-white/6 rounded-lg text-xs text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-sky-500/30 transition-colors"
+                    className="w-full pl-8 pr-3 py-2 bg-black/4 border border-black/6 rounded-lg text-xs text-slate-700 placeholder:text-slate-700 focus:outline-none focus:border-black/20 transition-colors"
                   />
                 </div>
                 <div className="mt-2 flex items-center justify-between">
@@ -272,7 +272,7 @@ export default function AuditPage() {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto divide-y divide-white/4">
+              <div className="flex-1 overflow-y-auto divide-y divide-black/5">
                 {loading ? (
                   <div className="p-6 flex flex-col items-center gap-3 text-center">
                     <Loader2 className="w-5 h-5 text-slate-600 animate-spin" />
@@ -294,10 +294,10 @@ export default function AuditPage() {
                         className={`w-full text-left px-4 py-3.5 border-l-2 transition-all ${
                           isSelected
                             ? "border-sky-500 bg-sky-500/6"
-                            : "border-transparent hover:bg-white/3 hover:border-white/10"
+                            : "border-transparent hover:bg-black/3 hover:border-black/10"
                         }`}
                       >
-                        <p className="text-xs font-semibold text-slate-200 line-clamp-2 mb-2 leading-snug">
+                        <p className="text-xs font-semibold text-slate-700 line-clamp-2 mb-2 leading-snug">
                           {record.question}
                         </p>
                         <div className="flex items-center justify-between gap-2">
@@ -316,7 +316,7 @@ export default function AuditPage() {
             </div>
 
             {/* Right: detail panel */}
-            <div className="flex-1 rounded-2xl border border-white/7 bg-[#090f1e]/70 overflow-y-auto">
+            <div className="flex-1 rounded-2xl border border-black/7 bg-white overflow-y-auto">
               {loading ? (
                 <div className="h-full flex items-center justify-center">
                   <Loader2 className="w-8 h-8 text-slate-600 animate-spin" />

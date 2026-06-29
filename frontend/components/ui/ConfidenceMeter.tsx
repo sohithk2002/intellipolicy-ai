@@ -15,7 +15,7 @@ export function ConfidenceMeter({ score, label = "Confidence Score", showBar = t
 
   const barGradient =
     pct >= 85
-      ? "linear-gradient(90deg, #0ea5e9, #34d399)"
+      ? "linear-gradient(90deg, #d1d5db, #34d399)"
       : pct >= 65
       ? "linear-gradient(90deg, #f59e0b, #fbbf24)"
       : "linear-gradient(90deg, #ef4444, #f87171)";
@@ -52,7 +52,7 @@ export function ConfidenceMeter({ score, label = "Confidence Score", showBar = t
         <div
           style={{
             height: 6,
-            background: "rgba(255,255,255,0.06)",
+            background: "rgba(0,0,0,0.04)",
             borderRadius: 99,
             overflow: "hidden",
           }}

@@ -114,33 +114,83 @@ def _call_llm(prompt: str, max_tokens: int = 1024) -> str | None:
         client = _get_anthropic_client()
         if not client:
             return None
-        resp = client.messages.create(
-            model=MODEL, max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return resp.content[0].text
+        try:
+            resp = client.messages.create(
+                model=MODEL, max_tokens=max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return resp.content[0].text
+        except Exception as e:
+            err_str = str(e)
+            logger.warning(f"[LLM] Anthropic API error ({type(e).__name__}) — falling back to extractive mode")
+            # Clear invalid/expired key so future requests skip the API call immediately
+            if "401" in err_str or "authentication" in err_str.lower() or "invalid" in err_str.lower():
+                global _anthropic_client
+                _provider_config["api_key"] = None
+                _provider_config["provider"] = None
+                _anthropic_client = None
+                # Also wipe the disk file so restart doesn't reload the bad key
+                try:
+                    if _CONFIG_FILE.exists():
+                        _CONFIG_FILE.write_text("{}")
+                except Exception:
+                    pass
+                logger.warning("[LLM] Cleared invalid Anthropic key from memory and disk")
+            return None
 
     if provider == "openai":
         client = _get_openai_client()
         if not client:
             return None
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini", max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return resp.choices[0].message.content
+        try:
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini", max_tokens=max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            return resp.choices[0].message.content
+        except Exception as e:
+            logger.warning(f"[LLM] OpenAI API error ({type(e).__name__}): {e} — falling back to extractive mode")
+            return None
 
     if provider == "gemini":
         key = _provider_config["api_key"] or os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
         if not key:
             return None
+        # Validate key format — Google AI Studio keys start with "AIza"
+        if not key.startswith("AIza"):
+            logger.warning(
+                "[LLM] Gemini API key appears invalid (should start with 'AIza'). "
+                "Get a key from aistudio.google.com/apikey"
+            )
+            return None
         try:
-            import google.generativeai as genai
-            genai.configure(api_key=key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            return model.generate_content(prompt).text
+            import httpx
+            # Try models in order until one succeeds
+            for gemini_model in ("gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-pro"):
+                url = (
+                    f"https://generativelanguage.googleapis.com/v1/models/"
+                    f"{gemini_model}:generateContent?key={key}"
+                )
+                # Mask key in any httpx logs (key appears in URL)
+                import logging as _logging
+                _logging.getLogger("httpx").setLevel(_logging.WARNING)
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {"maxOutputTokens": max_tokens},
+                }
+                resp = httpx.post(url, json=payload, timeout=60)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    return data["candidates"][0]["content"]["parts"][0]["text"]
+                if resp.status_code == 404:
+                    logger.info(f"[LLM] Gemini model {gemini_model} not found, trying next")
+                    continue
+                # Other errors (429, 401, 500) — raise to trigger fallback
+                resp.raise_for_status()
+            logger.warning("[LLM] All Gemini models returned 404 — falling back")
+            return None
         except Exception as e:
-            logger.error(f"Gemini call failed: {e}")
+            logger.warning(f"[LLM] Gemini API error: {e} — falling back to extractive mode")
             return None
 
     return None
@@ -184,12 +234,22 @@ def _dynamic_confidence(chunks: list[dict]) -> float:
 
 # ── Helpers for extractive answer formatting ─────────────────────────────────
 
+_FRAGMENT_STARTERS = re.compile(
+    r"^(and|or|but|however|also|additionally|furthermore|moreover|therefore|thus|hence|"
+    r"whereas|although|while|since|because|if|unless|until|when|where|which|that|who)\s+",
+    re.IGNORECASE,
+)
+
 def _clean_sentence(s: str) -> str:
-    """Remove PDF artifacts: lone numbers, header noise, dot-leaders."""
+    """Remove PDF artifacts and sentence fragments."""
     s = re.sub(r"\.{3,}.*$", "", s)           # dot-leader tails
     s = re.sub(r"^\s*\d{1,3}\s*$", "", s)     # lone page numbers
     s = re.sub(r"\s{2,}", " ", s)
-    return s.strip()
+    s = s.strip()
+    # Skip sentences that are clearly mid-paragraph fragments
+    if _FRAGMENT_STARTERS.match(s):
+        return ""
+    return s
 
 
 _DOC_HEADER_PAT = re.compile(
@@ -271,23 +331,54 @@ def _pick_best_sentences(
 
 def _synthesize_answer(sentences: list[str], question: str, best_chunk: dict) -> str:
     """
-    Turn the extracted sentences into a readable paragraph rather than
-    pasting them verbatim end-to-end.
+    Turn the extracted sentences into a readable answer.
+    For general questions, add a helpful intro line.
     """
     if not sentences:
-        return "I could not find sufficient information in the uploaded document."
+        # Last-resort: return the first 3 sentences of the best chunk directly
+        raw_sents = re.split(r"(?<=[.!?])\s+", best_chunk.get("text", ""))
+        useful = [s.strip() for s in raw_sents if len(s.split()) >= 6][:3]
+        if useful:
+            sentences = useful
+        else:
+            return "The document was retrieved but the relevant section could not be summarised in extractive mode. Configure an API key for full AI answers."
 
-    # Ensure each sentence ends properly and starts capitalised
+    q_lower = question.lower()
+    is_general = any(w in q_lower for w in [
+        "what is this", "what does this", "summarize", "overview", "about",
+        "what is in", "what can you", "tell me about", "describe",
+    ])
+
     cleaned = []
     for s in sentences:
         s = s.strip()
-        if s and not s[-1] in ".!?":
+        if s and s[-1] not in ".!?":
             s += "."
         if s:
             s = s[0].upper() + s[1:]
             cleaned.append(s)
 
-    return " ".join(cleaned)
+    body = " ".join(cleaned)
+
+    if is_general and best_chunk.get("document_name"):
+        doc_name = best_chunk["document_name"].replace(".pdf", "").replace("_", " ")
+        # Generate a readable intro from the doc name
+        intro = f"**{doc_name}** is a healthcare policy document."
+        if "prior" in doc_name.lower() and "auth" in doc_name.lower():
+            intro = f"**{doc_name}** covers which medical services and procedures require prior authorization."
+        elif "billing" in doc_name.lower() or "claims" in doc_name.lower():
+            intro = f"**{doc_name}** covers billing rules, CPT codes, and claims processing guidelines."
+        elif "telehealth" in doc_name.lower():
+            intro = f"**{doc_name}** covers coverage policies for telehealth and virtual care services."
+        elif "emergency" in doc_name.lower():
+            intro = f"**{doc_name}** covers emergency and urgent care coverage policies."
+        elif "formulary" in doc_name.lower() or "drug" in doc_name.lower():
+            intro = f"**{doc_name}** covers specialty drug and formulary coverage policies."
+        elif "medical necessity" in doc_name.lower():
+            intro = f"**{doc_name}** covers medical necessity criteria and coverage determination guidelines."
+        return f"{intro}\n\n{body}"
+
+    return body
 
 
 def _make_evidence(best_chunk: dict, keywords: set[str], question: str) -> str:
@@ -352,8 +443,16 @@ def _extractive_qa(question: str, context_chunks: list[dict]) -> dict:
     keywords   = _question_keywords(question)
     confidence = _dynamic_confidence(context_chunks)
 
+    # For general/overview questions use more sentences
+    q_lower = question.lower()
+    is_general = any(w in q_lower for w in [
+        "what is this", "what does this", "summarize", "overview", "about",
+        "what is in", "what can you", "tell me about", "describe", "list",
+    ])
+    max_sents = 6 if is_general else 4
+
     # Select the best sentences; get the most informative chunk
-    top_sentences, best_chunk = _pick_best_sentences(context_chunks, keywords, max_sentences=4)
+    top_sentences, best_chunk = _pick_best_sentences(context_chunks, keywords, max_sentences=max_sents)
 
     answer     = _synthesize_answer(top_sentences, question, best_chunk)
     evidence   = _make_evidence(best_chunk, keywords, question)
@@ -1127,60 +1226,55 @@ def ask_with_context(
         for c in context_chunks
     ])
 
-    prompt = f"""You are a strict healthcare policy analyst. Your ONLY source of truth is the POLICY CONTEXT below.
-You must NEVER use outside knowledge, training data, or assumptions. Every statement must be directly supported by the provided text.
+    prompt = f"""You are a helpful, expert healthcare policy assistant — like a senior analyst who has read this document thoroughly.
+Your job is to give clear, direct, useful answers based on the policy document text provided below.
 
 {history_text}
 
-POLICY CONTEXT:
+DOCUMENT CONTEXT (retrieved sections most relevant to the question):
 {context_text}
 
-QUESTION: {question}
+USER QUESTION: {question}
 
-GROUNDING RULES — ALL are mandatory:
+INSTRUCTIONS:
 
-1. Read every chunk carefully. Determine if the POLICY CONTEXT explicitly answers the question.
+1. Read all context sections carefully. Answer as helpfully as possible based on what the document says.
 
-2. STRONG SIGNAL REQUIRED — only answer "found" if the context contains at least one of:
-   - The exact CPT/HCPCS code mentioned in the question
-   - The exact procedure or service name
-   - The exact policy term (prior authorization, coverage, billing, etc.)
-   - A sentence that directly answers the question
+2. For general questions ("What is this about?", "Summarize", "What does this cover?"):
+   - Give a clear overview synthesized from the context. Be descriptive and useful.
+   - Mention the document name, key topics, and any key rules or coverage areas you see.
 
-3. If the context clearly answers the question:
-   - Set "not_found": false
-   - "answer": Plain English, 2-4 sentences. No raw policy text. No section numbers.
-   - "confidence": 0.50–1.0 based on how completely the context answers the question
-   - "evidence": 1-2 sentences explaining SPECIFICALLY which page/section supports the answer and why
-   - "next_action": One concrete instruction referencing the exact page number
+3. For specific questions (CPT codes, prior auth, coverage limits, etc.):
+   - Answer directly and specifically from the context.
+   - Quote or paraphrase the relevant policy language.
+   - Mention the page number(s) where the information appears.
 
-4. If the context does NOT clearly answer the question (weak match, unrelated content, or general policy text that does not address the specific question):
-   - Set "not_found": true
-   - Set "answer" to EXACTLY this phrase: "This is not mentioned in the uploaded document."
-   - Set "confidence" below 0.50
-   - "follow_up_questions": 3 questions the document DOES answer well
+4. Format your answers like ChatGPT — clear, structured, easy to read. Use bullet points for lists.
+   Keep answers concise but complete (3-6 sentences or equivalent bullets).
 
-5. NEVER guess, infer, or use background knowledge. If unsure → not_found: true.
+5. Only set "not_found": true if the document context is completely unrelated to the question
+   (e.g. asking about cardiology when the document is only about billing codes with zero overlap).
+   When in doubt, answer from the closest relevant content and note what you found.
 
-6. "reasoning_steps": List the actual retrieval facts (chunk count, top similarity, pages). Do NOT invent steps.
+6. "confidence": 0.70–1.0 for clear answers, 0.50–0.70 for partial/inferred answers, below 0.50 only if truly not found.
 
-Respond with ONLY valid JSON — no markdown, no explanation outside the JSON:
+Respond with ONLY valid JSON:
 {{
   "not_found": false,
-  "answer": "Concise plain-English answer directly from the document",
+  "answer": "Clear, helpful answer in plain English. Use \\n for line breaks and bullet points (- item) for lists.",
   "confidence": 0.87,
-  "evidence": "Specific explanation of why page N of DocumentName supports this answer",
-  "next_action": "Specific analyst instruction referencing the exact page number and topic",
+  "evidence": "Page N of DocumentName covers this topic — brief explanation of what that section says",
+  "next_action": "Concrete next step or recommendation for the user",
   "follow_up_questions": [
-    "Specific question this document answers well",
-    "Specific question this document answers well",
-    "Specific question this document answers well"
+    "A useful follow-up question about this document",
+    "Another useful follow-up question",
+    "A third useful follow-up question"
   ],
   "reasoning_steps": [
     "Retrieved N chunks from vector store",
     "Top similarity: X.XX — DocumentName p.N",
     "Pages used: N, N",
-    "Answer grounded in context"
+    "Answer synthesized from context"
   ]
 }}"""
 

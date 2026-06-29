@@ -40,9 +40,9 @@ const DOC_TYPES = [
 ];
 
 const PIPELINE_STEPS = [
-  { label: "PDF Parse",   icon: File,         desc: "Extract raw text from PDF",   color: "#38bdf8" },
-  { label: "Chunking",    icon: Scissors,     desc: "Split into semantic chunks",   color: "#818cf8" },
-  { label: "Embeddings",  icon: Cpu,          desc: "BAAI/bge-small-en-v1.5",      color: "#a78bfa" },
+  { label: "PDF Parse",   icon: File,         desc: "Extract raw text from PDF",   color: "#111827" },
+  { label: "Chunking",    icon: Scissors,     desc: "Split into semantic chunks",   color: "#94a3b8" },
+  { label: "Embeddings",  icon: Cpu,          desc: "BAAI/bge-small-en-v1.5",      color: "#94a3b8" },
   { label: "Vector DB",   icon: Database,     desc: "Store in PGVector",            color: "#34d399" },
   { label: "Ready",       icon: CheckCircle2, desc: "Indexed and searchable",       color: "#10b981" },
 ];
@@ -63,8 +63,8 @@ function buildStats(result: Document | null, elapsed: number | null) {
       value: "BAAI/bge",
       sub: "bge-small-en-v1.5",
       icon: BrainCircuit,
-      color: "#818cf8",
-      glow: "rgba(129,140,248,0.15)",
+      color: "#94a3b8",
+      glow: "rgba(0,0,0,0.09)",
       live: false,
     },
     {
@@ -72,8 +72,8 @@ function buildStats(result: Document | null, elapsed: number | null) {
       value: "150 tok",
       sub: "25 token overlap",
       icon: SplitSquareHorizontal,
-      color: "#38bdf8",
-      glow: "rgba(56,189,248,0.15)",
+      color: "#111827",
+      glow: "rgba(0,0,0,0.09)",
       live: false,
     },
     {
@@ -81,7 +81,7 @@ function buildStats(result: Document | null, elapsed: number | null) {
       value: result ? String(result.page_count) : "384",
       sub: result ? `${result.document_type}` : "normalized embeddings",
       icon: result ? FileText : Boxes,
-      color: "#a78bfa",
+      color: "#94a3b8",
       glow: "rgba(167,139,250,0.15)",
       live: !!result,
     },
@@ -135,12 +135,12 @@ function PipelineViz({ active, step }: { active: boolean; step: number }) {
                 ? "rgba(52,211,153,0.3)"
                 : current
                 ? `${s.color}40`
-                : "rgba(255,255,255,0.05)",
+                : "rgba(0,0,0,0.03)",
               background: done
                 ? "rgba(52,211,153,0.06)"
                 : current
                 ? `${s.color}0d`
-                : "rgba(255,255,255,0.02)",
+                : "rgba(0,0,0,0.01)",
             }}
           >
             {/* Step number badge */}
@@ -151,7 +151,7 @@ function PipelineViz({ active, step }: { active: boolean; step: number }) {
                   ? "rgba(52,211,153,0.2)"
                   : current
                   ? `${s.color}25`
-                  : "rgba(255,255,255,0.05)",
+                  : "rgba(0,0,0,0.03)",
                 color: done ? "#34d399" : current ? s.color : "#475569",
               }}
             >
@@ -166,7 +166,7 @@ function PipelineViz({ active, step }: { active: boolean; step: number }) {
                   ? "rgba(52,211,153,0.12)"
                   : current
                   ? `${s.color}18`
-                  : "rgba(255,255,255,0.04)",
+                  : "rgba(0,0,0,0.02)",
               }}
             >
               <Icon
@@ -288,14 +288,14 @@ export default function UploadPage() {
           eyebrow="Ingestion Pipeline"
           title="Upload Documents"
           subtitle="Ingest healthcare policies, contracts, and billing guides into the vector store for AI-powered retrieval."
-          gradient="#0ea5e9"
+          gradient="#d1d5db"
         />
 
         <div className="grid lg:grid-cols-5 gap-7">
 
           {/* ── Upload Card ── */}
-          <div className="lg:col-span-3 rounded-2xl border border-white/7 bg-[#090f1e]/70 p-8">
-            <h2 className="text-base font-bold text-white mb-1" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+          <div className="lg:col-span-3 rounded-2xl border border-black/7 bg-white p-8">
+            <h2 className="text-base font-bold text-gray-900 mb-1" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
               Upload Policy PDF
             </h2>
             <p className="text-sm text-slate-500 mb-5">Supports policy manuals, CMS guidelines, provider contracts, and billing guides</p>
@@ -315,16 +315,16 @@ export default function UploadPage() {
                   className={`border-2 border-dashed rounded-2xl p-12 flex flex-col items-center gap-4 transition-all duration-200 cursor-pointer ${
                     dragging
                       ? "border-sky-500/60 bg-sky-500/6"
-                      : "border-white/10 hover:border-white/20 hover:bg-white/2"
+                      : "border-black/10 hover:border-black/20 hover:bg-black/2"
                   }`}
                 >
                   <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors ${
-                    dragging ? "bg-sky-500/20 text-sky-400" : "bg-white/5 text-slate-600"
+                    dragging ? "bg-sky-500/20 text-sky-400" : "bg-black/5 text-slate-600"
                   }`}>
                     <Upload className="w-7 h-7" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-semibold text-slate-200">Drop your PDF here</p>
+                    <p className="text-sm font-semibold text-slate-700">Drop your PDF here</p>
                     <p className="text-xs text-slate-500 mt-1">or click to browse — PDF files only, max 50 MB</p>
                   </div>
                   <input id="file-input" type="file" accept=".pdf" onChange={handleFile} className="hidden" />
@@ -341,10 +341,10 @@ export default function UploadPage() {
                     <FileText className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{file.name}</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{file.name}</p>
                     <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB · PDF</p>
                   </div>
-                  <button onClick={reset} className="text-slate-500 hover:text-slate-300 transition-colors">
+                  <button onClick={reset} className="text-slate-500 hover:text-slate-600 transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </motion.div>
@@ -360,7 +360,7 @@ export default function UploadPage() {
                 className="input-field"
               >
                 {DOC_TYPES.map((t) => (
-                  <option key={t.value} value={t.value} className="bg-[#090f1e]">{t.label}</option>
+                  <option key={t.value} value={t.value} className="bg-white">{t.label}</option>
                 ))}
               </select>
             </div>
@@ -390,7 +390,7 @@ export default function UploadPage() {
                   ].map(([k, v]) => (
                     <div key={k} className="flex items-center justify-between">
                       <span className="text-slate-500">{k}</span>
-                      <span className="text-slate-200 font-medium font-mono">{v}</span>
+                      <span className="text-slate-700 font-medium font-mono">{v}</span>
                     </div>
                   ))}
                 </div>
@@ -407,14 +407,14 @@ export default function UploadPage() {
                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-3">What would you like to do next?</p>
                 <div className="space-y-2">
                   {[
-                    { label: "Ask a Question",   desc: "Query this document with AI",   href: "/assistant", color: "#38bdf8", icon: MessageSquare },
-                    { label: "Extract Rules",     desc: "Convert policy to JSON rules",  href: "/rules",     color: "#818cf8", icon: FileCode2     },
-                    { label: "Compare Policies",  desc: "Detect changes vs another doc", href: "/compare",   color: "#a78bfa", icon: GitCompare    },
+                    { label: "Ask a Question",   desc: "Query this document with AI",   href: "/assistant", color: "#111827", icon: MessageSquare },
+                    { label: "Extract Rules",     desc: "Convert policy to JSON rules",  href: "/rules",     color: "#94a3b8", icon: FileCode2     },
+                    { label: "Compare Policies",  desc: "Detect changes vs another doc", href: "/compare",   color: "#94a3b8", icon: GitCompare    },
                   ].map((action) => {
                     const Icon = action.icon;
                     return (
                       <Link key={action.href} href={action.href}>
-                        <div className="flex items-center gap-3 p-4 rounded-xl border border-white/6 hover:border-white/12 hover:bg-white/3 transition-all cursor-pointer group">
+                        <div className="flex items-center gap-3 p-4 rounded-xl border border-black/6 hover:border-black/12 hover:bg-black/3 transition-all cursor-pointer group">
                           <div
                             className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                             style={{ background: `${action.color}12`, border: `1px solid ${action.color}22` }}
@@ -422,7 +422,7 @@ export default function UploadPage() {
                             <Icon className="w-4 h-4" style={{ color: action.color }} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-slate-200 group-hover:text-white transition-colors">
+                            <p className="text-xs font-semibold text-slate-700 group-hover:text-gray-900 transition-colors">
                               {action.label}
                             </p>
                             <p className="text-[10px] text-slate-600">{action.desc}</p>
@@ -458,14 +458,14 @@ export default function UploadPage() {
           <div className="lg:col-span-2 space-y-5">
 
             {/* ── Ingestion Pipeline Card ── */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6">
+            <div className="rounded-2xl border border-black/7 bg-white p-6">
               <div className="flex items-center gap-2.5 mb-4">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                  style={{ background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.25)" }}>
+                  style={{ background: "rgba(0,0,0,0.09)", border: "1px solid rgba(0,0,0,0.15)" }}>
                   <Layers className="w-3.5 h-3.5 text-indigo-400" />
                 </div>
                 <div>
-                  <h2 className="text-[13px] font-bold text-white leading-none" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                  <h2 className="text-[13px] font-bold text-gray-900 leading-none" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                     Ingestion Pipeline
                   </h2>
                   <p className="text-[10px] text-slate-600 mt-0.5">5-step processing flow</p>
@@ -476,7 +476,7 @@ export default function UploadPage() {
                   const Icon = step.icon;
                   return (
                     <div key={step.label} className="flex items-center gap-3 rounded-xl p-2.5"
-                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)" }}>
+                      style={{ background: "rgba(0,0,0,0.01)", border: "1px solid rgba(0,0,0,0.02)" }}>
                       <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold shrink-0"
                         style={{ background: `${step.color}18`, color: step.color, border: `1px solid ${step.color}30` }}>
                         {i + 1}
@@ -486,7 +486,7 @@ export default function UploadPage() {
                         <Icon className="w-3 h-3" style={{ color: step.color }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-semibold text-slate-300 leading-none">{step.label}</p>
+                        <p className="text-[11px] font-semibold text-slate-600 leading-none">{step.label}</p>
                         <p className="text-[9px] text-slate-600 font-mono mt-0.5 truncate">{step.desc}</p>
                       </div>
                     </div>
@@ -496,15 +496,15 @@ export default function UploadPage() {
             </div>
 
             {/* ── Processing Stats Flash Cards ── */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6">
+            <div className="rounded-2xl border border-black/7 bg-white p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center"
-                    style={{ background: "rgba(56,189,248,0.15)", border: "1px solid rgba(56,189,248,0.25)" }}>
+                    style={{ background: "rgba(0,0,0,0.09)", border: "1px solid rgba(0,0,0,0.15)" }}>
                     <Zap className="w-3.5 h-3.5 text-sky-400" />
                   </div>
                   <div>
-                    <h2 className="text-[13px] font-bold text-white leading-none" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                    <h2 className="text-[13px] font-bold text-gray-900 leading-none" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                       System Config
                     </h2>
                     <p className="text-[10px] text-slate-600 mt-0.5">
@@ -517,12 +517,12 @@ export default function UploadPage() {
                   <div className="flex items-center gap-1.5">
                     <motion.div
                       className="w-1.5 h-1.5 rounded-full"
-                      style={{ background: result ? "#34d399" : "#38bdf8" }}
+                      style={{ background: result ? "#34d399" : "#111827" }}
                       animate={{ opacity: uploading ? [1, 0.2, 1] : 1 }}
                       transition={{ repeat: uploading ? Infinity : 0, duration: 0.8 }}
                     />
                     <span className="text-[9px] font-semibold uppercase tracking-wider"
-                      style={{ color: result ? "#34d399" : "#38bdf8" }}>
+                      style={{ color: result ? "#34d399" : "#111827" }}>
                       {result ? "Live" : "Processing"}
                     </span>
                   </div>
@@ -596,16 +596,16 @@ export default function UploadPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-5"
+                className="rounded-2xl border border-black/7 bg-white p-5"
               >
-                <h2 className="text-sm font-bold text-white mb-3" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                <h2 className="text-sm font-bold text-gray-900 mb-3" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                   Just Indexed
                 </h2>
                 <div className="space-y-2.5">
                   {documents.slice(0, 3).map((doc) => (
                     <div key={doc.id} className="flex items-center gap-2.5">
                       <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <p className="text-xs text-slate-300 flex-1 truncate">{doc.filename}</p>
+                      <p className="text-xs text-slate-600 flex-1 truncate">{doc.filename}</p>
                       <div className="flex items-center gap-1 text-[10px] text-slate-600 shrink-0">
                         <Clock className="w-2.5 h-2.5" />
                         just now

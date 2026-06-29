@@ -69,7 +69,7 @@ const RULE_TYPE_VARIANT: Record<string, "danger" | "warning" | "info" | "success
 
 function confColor(c: number) {
   if (c >= 0.85) return "#34d399";
-  if (c >= 0.70) return "#38bdf8";
+  if (c >= 0.70) return "#111827";
   if (c >= 0.55) return "#fbbf24";
   return "#94a3b8";
 }
@@ -164,7 +164,7 @@ function computeSummary(rules: BusinessRule[]) {
 function colorizeJson(json: string): string {
   return json
     .replace(/("(?:[^"\\]|\\.)*")(\s*:)/g,
-      '<span style="color:#38bdf8">$1</span>$2')
+      '<span style="color:#ffffff">$1</span>$2')
     .replace(/:\s*("(?:[^"\\]|\\.)*")/g,
       ': <span style="color:#a5f3fc">$1</span>')
     .replace(/:\s*(true|false|null)/g,
@@ -227,7 +227,7 @@ const DEMO_RULES: BusinessRule[] = [
 function IfThenBlock({ ifs, thens }: { ifs: string[]; thens: string[] }) {
   if (!ifs.length || !thens.length) return null;
   return (
-    <div className="px-6 py-4 border-t border-white/5" style={{ background: "rgba(14,165,233,0.03)" }}>
+    <div className="px-6 py-4 border-t border-black/5" style={{ background: "rgba(0,0,0,0.02)" }}>
       <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-3">Validation Logic</p>
       <div className="font-mono text-[12px] space-y-2.5">
         <div className="flex items-start gap-3">
@@ -236,7 +236,7 @@ function IfThenBlock({ ifs, thens }: { ifs: string[]; thens: string[] }) {
             {ifs.map((c, i) => (
               <div key={i} className="flex items-center gap-2">
                 {i > 0 && <span className="text-slate-700 text-[10px] font-bold">AND</span>}
-                <span className={`text-slate-300 ${i > 0 ? "ml-[29px]" : ""}`}>{c}</span>
+                <span className={`text-slate-600 ${i > 0 ? "ml-[29px]" : ""}`}>{c}</span>
               </div>
             ))}
           </div>
@@ -245,7 +245,7 @@ function IfThenBlock({ ifs, thens }: { ifs: string[]; thens: string[] }) {
           <span className="text-emerald-400 font-bold w-8 shrink-0 pt-px">THEN</span>
           <div className="space-y-1">
             {thens.map((a, i) => (
-              <p key={i} className="text-slate-300">{a}</p>
+              <p key={i} className="text-slate-600">{a}</p>
             ))}
           </div>
         </div>
@@ -289,7 +289,7 @@ function RuleCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.055 }}
       className="rounded-2xl overflow-hidden"
-      style={{ border: `1px solid ${sev.border}`, background: "rgba(7,12,24,0.85)" }}
+      style={{ border: `1px solid ${sev.border}`, background: "#ffffff" }}
     >
       {/* ── Card header ── */}
       <div className="px-6 pt-5 pb-4" style={{ background: sev.bg }}>
@@ -308,7 +308,7 @@ function RuleCard({
           <div className="flex items-center gap-2.5 shrink-0">
             <button
               onClick={() => setJsonOpen(!jsonOpen)}
-              className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg border border-white/8 text-slate-500 hover:text-sky-400 hover:border-sky-500/30 transition-all"
+              className="flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-lg border border-black/8 text-slate-500 hover:text-sky-400 hover:border-sky-500/30 transition-all"
             >
               <FileCode2 className="w-3 h-3" />
               JSON
@@ -321,7 +321,7 @@ function RuleCard({
           </div>
         </div>
 
-        <p className="text-[17px] font-bold text-white leading-snug mb-2">{rule.procedure}</p>
+        <p className="text-[17px] font-bold text-gray-900 leading-snug mb-2">{rule.procedure}</p>
 
         <div className="flex items-center gap-3 flex-wrap" style={{ fontSize: 12, color: "rgba(100,116,139,0.8)" }}>
           <span className="font-mono">Rule {index + 1}</span>
@@ -340,7 +340,7 @@ function RuleCard({
           {rule.cpt_code && (
             <>
               <span>·</span>
-              <span className="font-mono" style={{ color: "#38bdf8" }}>{rule.cpt_code}</span>
+              <span className="font-mono" style={{ color: "#111827" }}>{rule.cpt_code}</span>
             </>
           )}
           {rule.effective_date && (
@@ -358,29 +358,29 @@ function RuleCard({
       {/* ── Applies To / Restrictions grid ── */}
       {(hasAppliesTo || hasRHS) && (
         <div
-          className="grid border-t border-white/5"
+          className="grid border-t border-black/5"
           style={{ gridTemplateColumns: hasAppliesTo && hasRHS ? "1fr 1fr" : "1fr" }}
         >
           {hasAppliesTo && (
-            <div className="px-5 py-4" style={{ borderRight: hasRHS ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
+            <div className="px-5 py-4" style={{ borderRight: hasRHS ? "1px solid rgba(0,0,0,0.03)" : "none" }}>
               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-3">Applies To</p>
               <div className="space-y-2">
                 {rule.actor && (
                   <div className="flex items-center gap-2">
                     <User className="w-3 h-3 text-sky-400 shrink-0" />
-                    <span className="text-[13px] text-slate-200">{rule.actor}</span>
+                    <span className="text-[13px] text-slate-700">{rule.actor}</span>
                   </div>
                 )}
                 {rule.cpt_code && (
                   <div className="flex items-center gap-2">
                     <Tag className="w-3 h-3 text-indigo-400 shrink-0" />
-                    <span className="text-[13px] text-slate-200 font-mono">{rule.cpt_code}</span>
+                    <span className="text-[13px] text-slate-700 font-mono">{rule.cpt_code}</span>
                   </div>
                 )}
                 {rule.icd_code && (
                   <div className="flex items-center gap-2">
                     <Tag className="w-3 h-3 text-violet-400 shrink-0" />
-                    <span className="text-[13px] text-slate-200 font-mono">ICD: {rule.icd_code}</span>
+                    <span className="text-[13px] text-slate-700 font-mono">ICD: {rule.icd_code}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-2">
@@ -418,7 +418,7 @@ function RuleCard({
 
       {/* ── Conditions ── */}
       {hasConditions && (
-        <div className="px-6 py-4 border-t border-white/5 space-y-2.5" style={{ background: "rgba(251,191,36,0.025)" }}>
+        <div className="px-6 py-4 border-t border-black/5 space-y-2.5" style={{ background: "rgba(251,191,36,0.025)" }}>
           <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Conditions</p>
           {rule.condition && (
             <div className="flex items-start gap-2.5">
@@ -429,13 +429,13 @@ function RuleCard({
           {rule.authorization_timing && (
             <div className="flex items-start gap-2.5">
               <Clock className="w-3.5 h-3.5 text-sky-400 mt-0.5 shrink-0" />
-              <span className="text-[13px] text-slate-300">Submit: {rule.authorization_timing}</span>
+              <span className="text-[13px] text-slate-600">Submit: {rule.authorization_timing}</span>
             </div>
           )}
           {rule.emergency_exception && (
             <div className="flex items-start gap-2.5">
               <AlertCircle className="w-3.5 h-3.5 text-red-400 mt-0.5 shrink-0" />
-              <span className="text-[13px] text-slate-300">Emergency window: {rule.emergency_exception}</span>
+              <span className="text-[13px] text-slate-600">Emergency window: {rule.emergency_exception}</span>
             </div>
           )}
         </div>
@@ -443,7 +443,7 @@ function RuleCard({
 
       {/* ── Documentation ── */}
       {hasDocs && (
-        <div className="px-6 py-4 border-t border-white/5">
+        <div className="px-6 py-4 border-t border-black/5">
           <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-3">
             Documentation Required
             <span className="ml-2 font-mono" style={{ color: confColor(rule.confidence) }}>
@@ -455,7 +455,7 @@ function RuleCard({
               <span
                 key={di}
                 className="text-[12px] px-2.5 py-1 rounded-lg font-mono"
-                style={{ background: "rgba(99,102,241,0.10)", border: "1px solid rgba(99,102,241,0.20)", color: "#a5b4fc" }}
+                style={{ background: "rgba(0,0,0,0.06)", border: "1px solid rgba(0,0,0,0.12)", color: "#a5b4fc" }}
               >
                 {d}
               </span>
@@ -465,7 +465,7 @@ function RuleCard({
       )}
 
       {/* ── Traceability ── */}
-      <div className="px-6 py-3.5 border-t border-white/5">
+      <div className="px-6 py-3.5 border-t border-black/5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5 text-[12px]" style={{ color: "rgba(100,116,139,0.7)" }}>
             <FileText className="w-3 h-3 shrink-0" />
@@ -481,7 +481,7 @@ function RuleCard({
           <button
             onClick={() => setTraceOpen(!traceOpen)}
             className="flex items-center gap-1.5 text-[11px] font-semibold transition-colors shrink-0"
-            style={{ color: traceOpen ? "#38bdf8" : "rgba(100,116,139,0.6)" }}
+            style={{ color: traceOpen ? "#111827" : "rgba(100,116,139,0.6)" }}
           >
             <Eye className="w-3 h-3" />
             {traceOpen ? "Hide Source" : "View Source"}
@@ -496,7 +496,7 @@ function RuleCard({
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="mt-3 rounded-xl p-3.5" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="mt-3 rounded-xl p-3.5" style={{ background: "rgba(0,0,0,0.01)", border: "1px solid rgba(0,0,0,0.04)" }}>
                 <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2">Source Chunk</p>
                 <p className="text-[12px] font-mono leading-relaxed break-words" style={{ color: "rgba(148,163,184,0.8)" }}>
                   {rule.raw_text}
@@ -516,7 +516,7 @@ function RuleCard({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+            style={{ borderTop: "1px solid rgba(0,0,0,0.03)" }}
           >
             <div className="px-6 py-4" style={{ background: "rgba(0,0,0,0.35)" }}>
               <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-2.5">JSON Preview</p>
@@ -531,7 +531,7 @@ function RuleCard({
       </AnimatePresence>
 
       {/* ── Card footer ── */}
-      <div className="px-6 py-3 flex items-center justify-between border-t border-white/5" style={{ background: "rgba(255,255,255,0.01)" }}>
+      <div className="px-6 py-3 flex items-center justify-between border-t border-black/5" style={{ background: "rgba(0,0,0,0.01)" }}>
         <div className="flex items-center gap-2.5">
           {rule.source_page != null
             ? <Badge variant="info">Page {rule.source_page}</Badge>
@@ -552,22 +552,22 @@ function SummaryPanel({ rules }: { rules: BusinessRule[] }) {
   const s = computeSummary(rules);
 
   const statGrid = [
-    { label: "Total Rules",      value: rules.length,                    color: "#e2e8f7" },
+    { label: "Total Rules",      value: rules.length,                    color: "#111827" },
     { label: "High Risk",        value: s.highSev,                       color: "#f87171" },
     { label: "Avg Confidence",   value: `${Math.round(s.avgConf * 100)}%`, color: "#34d399" },
-    { label: "Ready for Claims", value: s.readyCount,                    color: "#38bdf8" },
+    { label: "Ready for Claims", value: s.readyCount,                    color: "#111827" },
   ];
 
   return (
-    <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6 space-y-5">
-      <h2 className="text-[16px] font-bold text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+    <div className="rounded-2xl border border-black/7 bg-white p-6 space-y-5">
+      <h2 className="text-[16px] font-bold text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
         Extraction Summary
       </h2>
 
       {/* Main stats */}
       <div className="grid grid-cols-4 gap-3">
         {statGrid.map((s) => (
-          <div key={s.label} className="text-center p-4 rounded-xl bg-white/4 border border-white/6">
+          <div key={s.label} className="text-center p-4 rounded-xl bg-black/4 border border-black/6">
             <p className="text-2xl font-black" style={{ color: s.color, fontFamily: "var(--font-heading, sans-serif)" }}>
               {s.value}
             </p>
@@ -595,7 +595,7 @@ function SummaryPanel({ rules }: { rules: BusinessRule[] }) {
           <div className="flex flex-wrap gap-1.5">
             {s.cpts.map((c) => (
               <span key={c} className="text-[11px] px-2 py-0.5 rounded font-mono"
-                style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.22)", color: "#a5b4fc" }}>
+                style={{ background: "rgba(0,0,0,0.07)", border: "1px solid rgba(0,0,0,0.13)", color: "#a5b4fc" }}>
                 {c}
               </span>
             ))}
@@ -610,7 +610,7 @@ function SummaryPanel({ rules }: { rules: BusinessRule[] }) {
             <div className="flex flex-wrap gap-1.5">
               {s.planTypes.map((p) => (
                 <span key={p} className="text-[11px] px-2 py-0.5 rounded"
-                  style={{ background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.18)", color: "#7dd3fc" }}>
+                  style={{ background: "rgba(0,0,0,0.05)", border: "1px solid rgba(0,0,0,0.11)", color: "#7dd3fc" }}>
                   {p}
                 </span>
               ))}
@@ -652,9 +652,9 @@ function SuccessBanner({ count, timeS, avgConf, ready }: {
         <span className="text-[14px] font-bold text-emerald-400">Rules Extracted Successfully</span>
       </div>
       <div className="flex items-center gap-4 text-[12px] text-slate-400 flex-wrap">
-        <span><span className="text-white font-semibold">{count}</span> rules found</span>
-        <span><span className="text-white font-semibold">{timeS.toFixed(1)}s</span> processing</span>
-        <span><span className="text-white font-semibold">{Math.round(avgConf * 100)}%</span> avg confidence</span>
+        <span><span className="text-gray-900 font-semibold">{count}</span> rules found</span>
+        <span><span className="text-gray-900 font-semibold">{timeS.toFixed(1)}s</span> processing</span>
+        <span><span className="text-gray-900 font-semibold">{Math.round(avgConf * 100)}%</span> avg confidence</span>
         <span><span className="text-emerald-400 font-semibold">{ready}</span> ready for validation</span>
       </div>
     </motion.div>
@@ -668,13 +668,13 @@ function EmptyState({ hasDocuments }: { hasDocuments: boolean }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-12 flex flex-col items-center text-center gap-5"
+      className="rounded-2xl border border-black/7 bg-white p-12 flex flex-col items-center text-center gap-5"
     >
-      <div className="w-14 h-14 rounded-2xl border border-white/7 bg-white/4 flex items-center justify-center">
+      <div className="w-14 h-14 rounded-2xl border border-black/7 bg-black/4 flex items-center justify-center">
         <FileCode2 className="w-7 h-7 text-slate-600" />
       </div>
       <div>
-        <p className="text-[17px] font-bold text-slate-300 mb-2">Structured rules will appear here</p>
+        <p className="text-[17px] font-bold text-slate-600 mb-2">Structured rules will appear here</p>
         <p className="text-[13px] text-slate-600 max-w-xs leading-relaxed">
           {hasDocuments
             ? "Select an indexed document above, or paste policy text and click Extract."
@@ -685,7 +685,7 @@ function EmptyState({ hasDocuments }: { hasDocuments: boolean }) {
         <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Supported rule types</p>
         <div className="flex flex-wrap gap-1.5">
           {["Authorization","Billing","Coverage","Documentation","Provider","Frequency","Supervision","Eligibility"].map((t) => (
-            <span key={t} className="text-[11px] px-2 py-0.5 rounded bg-white/4 border border-white/7 text-slate-500">{t}</span>
+            <span key={t} className="text-[11px] px-2 py-0.5 rounded bg-black/4 border border-black/7 text-slate-500">{t}</span>
           ))}
         </div>
       </div>
@@ -821,7 +821,7 @@ export default function RulesPage() {
           eyebrow="Rule Engine"
           title="Rule Extraction"
           subtitle="Convert raw policy language into structured, machine-readable business rules with validation logic, severity classification, and full source traceability."
-          gradient="#fbbf24"
+          gradient="#94a3b8"
           action={
             rules.length > 0 && !isDemo ? (
               <Button variant="outline" size="sm" onClick={downloadAll} icon={<Download className="w-4 h-4" />}>
@@ -838,10 +838,10 @@ export default function RulesPage() {
 
             {/* Extract from indexed document */}
             {documents.length > 0 && (
-              <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-6">
+              <div className="rounded-2xl border border-black/7 bg-white p-6">
                 <div className="flex items-center gap-2.5 mb-4">
                   <FileText className="w-4 h-4 text-emerald-400" />
-                  <h2 className="text-[16px] font-bold text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                  <h2 className="text-[16px] font-bold text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                     Extract from Indexed Document
                   </h2>
                 </div>
@@ -852,11 +852,11 @@ export default function RulesPage() {
                   <select
                     value={selectedDocId}
                     onChange={(e) => setSelectedDocId(e.target.value)}
-                    className="flex-1 bg-white/4 border border-white/8 rounded-xl px-4 py-2.5 text-[14px] text-slate-200 focus:outline-none focus:border-sky-500/35 transition-colors appearance-none"
+                    className="flex-1 bg-black/4 border border-black/8 rounded-xl px-4 py-2.5 text-[14px] text-slate-700 focus:outline-none focus:border-black/20 transition-colors appearance-none"
                   >
-                    <option value="" className="bg-[#090f1e] text-slate-500">Select a document…</option>
+                    <option value="" className="bg-white text-slate-500">Select a document…</option>
                     {documents.map((doc) => (
-                      <option key={doc.id} value={doc.id} className="bg-[#090f1e]">
+                      <option key={doc.id} value={doc.id} className="bg-white">
                         {doc.filename} ({doc.page_count}p · {doc.chunk_count ?? "?"} chunks)
                       </option>
                     ))}
@@ -874,9 +874,9 @@ export default function RulesPage() {
             )}
 
             {/* Manual text input */}
-            <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-7">
+            <div className="rounded-2xl border border-black/7 bg-white p-7">
               <div className="flex items-center justify-between mb-1.5">
-                <h2 className="text-[20px] font-bold text-white" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                <h2 className="text-[20px] font-bold text-gray-900" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                   Policy Text Input
                 </h2>
                 <span className="text-[12px] text-slate-600 font-mono">{text.length} chars</span>
@@ -889,7 +889,7 @@ export default function RulesPage() {
                 onChange={(e) => { setText(e.target.value); setIsDemo(false); }}
                 rows={12}
                 placeholder="Paste policy text here…"
-                className="w-full bg-white/4 border border-white/8 rounded-xl px-4 py-3.5 text-[15px] text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-sky-500/35 transition-colors resize-none font-mono leading-relaxed"
+                className="w-full bg-black/4 border border-black/8 rounded-xl px-4 py-3.5 text-[15px] text-slate-700 placeholder:text-slate-600 focus:outline-none focus:border-black/20 transition-colors resize-none font-mono leading-relaxed"
               />
               {error && error !== "no-rules" && (
                 <div className="mt-3 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/8 border border-red-500/18">
@@ -917,12 +917,12 @@ export default function RulesPage() {
           {/* ── Right: Output ── */}
           <div className="space-y-4">
             {busy ? (
-              <div className="rounded-2xl border border-white/7 bg-[#090f1e]/70 p-10 flex flex-col items-center gap-5">
+              <div className="rounded-2xl border border-black/7 bg-white p-10 flex flex-col items-center gap-5">
                 <div className="w-16 h-16 rounded-2xl bg-sky-500/10 border border-sky-500/18 flex items-center justify-center">
                   <Sparkles className="w-8 h-8 text-sky-400 animate-pulse" />
                 </div>
                 <div className="text-center">
-                  <p className="text-[18px] font-bold text-white mb-1.5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
+                  <p className="text-[18px] font-bold text-gray-900 mb-1.5" style={{ fontFamily: "var(--font-heading, sans-serif)" }}>
                     Extracting Rules…
                   </p>
                   <p className="text-[14px] text-slate-400">Parsing policy language into structured business rules</p>
@@ -978,8 +978,8 @@ export default function RulesPage() {
             <div className="flex gap-4 items-center">
               <Link href="/claims" className="flex-1">
                 <button
-                  className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-xl text-white text-[15px] font-bold transition-all group"
-                  style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)", boxShadow: "0 8px 32px rgba(14,165,233,0.2)" }}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-xl text-gray-900 text-[15px] font-bold transition-all group"
+                  style={{ background: "linear-gradient(135deg, #d1d5db, #6b7280)", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}
                 >
                   <ShieldCheck className="w-5 h-5" />
                   Send to Claims Validator
@@ -989,7 +989,7 @@ export default function RulesPage() {
               {!isDemo && (
                 <button
                   onClick={downloadAll}
-                  className="flex items-center gap-2.5 py-3.5 px-5 rounded-xl border border-white/10 hover:border-white/18 hover:bg-white/4 text-slate-300 text-[15px] font-semibold transition-all"
+                  className="flex items-center gap-2.5 py-3.5 px-5 rounded-xl border border-black/10 hover:border-black/18 hover:bg-black/4 text-slate-600 text-[15px] font-semibold transition-all"
                 >
                   <Download className="w-4 h-4" />
                   Export JSON

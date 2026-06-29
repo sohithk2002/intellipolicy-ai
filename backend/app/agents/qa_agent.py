@@ -5,16 +5,16 @@ import logging
 from datetime import datetime
 from .retrieval_agent import run_retrieval
 from ..services.llm_service import ask_with_context
-from ..services.vector_store import RetrievedChunk
+from ..services.vector_store import RetrievedChunk, get_global_store
 
 logger = logging.getLogger(__name__)
 
 _audit_store:   dict[str, dict] = {}
 _session_history: dict[str, list[dict]] = {}   # session_id -> [{question, answer}]
 
-MIN_RELEVANCE   = 0.25   # raised: below this → "not found"
-MIN_CONFIDENCE  = 0.50   # post-LLM: below this + no exact match → "not found"
-MIN_SIGNAL_SCORE = 0.45  # after reranking, top chunk must meet this OR keyword overlap ≥ 40%
+MIN_RELEVANCE   = 0.08   # below this → truly unrelated content
+MIN_CONFIDENCE  = 0.20   # post-LLM: only reject if very low AND explicit not_found flag
+MIN_SIGNAL_SCORE = 0.15  # after reranking, top chunk must meet this OR keyword overlap ≥ 20%
 
 STOPWORDS = {
     "what", "which", "where", "when", "how", "does", "are", "the", "and",
@@ -68,9 +68,18 @@ def _casual_response(question: str, session_id: str) -> dict:
 
 def _has_strong_signal(question: str, chunks: list[RetrievedChunk]) -> bool:
     """
-    True if at least one retrieved chunk has a strong relevance signal to the question:
-    exact CPT code match, ≥40% keyword overlap, or reranked score ≥ MIN_SIGNAL_SCORE.
+    True if at least one retrieved chunk has a relevant signal to the question.
+    Uses permissive thresholds — the LLM itself makes the final grounding decision.
     """
+    # General summary/overview questions always pass — let the LLM answer from top chunks
+    _GENERAL_PATTERNS = re.compile(
+        r"^(what (is|are|does)|summarize|overview|explain|describe|tell me|"
+        r"what can you|give me|list|show me|how does|why does)",
+        re.IGNORECASE,
+    )
+    if _GENERAL_PATTERNS.match(question.strip()):
+        return True
+
     q_codes = re.findall(r"\b\d{5}[A-Z]?\b|\b[A-Z]\d{4}\b", question)
     q_words = {w.lower() for w in re.split(r"\W+", question)
                if len(w) > 3 and w.lower() not in STOPWORDS}
@@ -80,12 +89,12 @@ def _has_strong_signal(question: str, chunks: list[RetrievedChunk]) -> bool:
         # Exact CPT/HCPCS code
         if q_codes and any(code.lower() in text_lower for code in q_codes):
             return True
-        # Keyword overlap ≥ 40%
+        # Keyword overlap ≥ 20% (with at least 1 hit)
         if q_words:
             hits = sum(1 for w in q_words if w in text_lower)
-            if hits >= max(2, len(q_words) * 0.40):
+            if hits >= max(1, len(q_words) * 0.20):
                 return True
-        # High reranked score
+        # Meets minimum reranked score
         if chunk.relevance_score >= MIN_SIGNAL_SCORE:
             return True
     return False
@@ -104,42 +113,52 @@ def _search_keywords_desc(question: str) -> str:
     return ", ".join(parts) if parts else f'"{question[:60]}"'
 
 
-def _suggest_from_chunks(chunks: list[RetrievedChunk]) -> list[str]:
-    """Generate 3 contextually relevant questions from the actual chunk content."""
+def _suggest_from_chunks(chunks: list[RetrievedChunk], current_question: str = "") -> list[str]:
+    """Generate 3 contextually relevant follow-up questions, never repeating the current one."""
     defaults = [
-        "What services require prior authorization under this policy?",
         "What documentation must be submitted with a claim?",
+        "What CPT codes are mentioned in this document?",
         "Which procedures are excluded or require special review?",
+        "What are the billing rules for telehealth services?",
+        "What are the evaluation and management (E/M) coding guidelines?",
     ]
     if not chunks:
-        return defaults
+        return [d for d in defaults if d.lower() not in current_question.lower()][:3]
+
     all_text = " ".join(c.text for c in chunks[:3])
     cpt_codes = re.findall(r"CPT\s*(?:code\s+)?(\d{5})", all_text, re.IGNORECASE)
     headings  = re.findall(r"(?:^|\n)([A-Z][A-Za-z ]{5,50})(?:\n|:)", all_text)
 
+    q_lower = current_question.lower()
     suggestions: list[str] = []
     if cpt_codes:
-        suggestions.append(f"What are the authorization requirements for CPT {cpt_codes[0]}?")
+        candidate = f"What are the documentation requirements for CPT {cpt_codes[0]}?"
+        if candidate.lower() not in q_lower:
+            suggestions.append(candidate)
     if headings:
         h = headings[0].strip().lower()
-        suggestions.append(f"What does the policy say about {h}?")
+        candidate = f"What does the policy say about {h}?"
+        if h not in q_lower and candidate.lower() not in q_lower:
+            suggestions.append(candidate)
     for d in defaults:
         if len(suggestions) >= 3:
             break
-        suggestions.append(d)
+        if d.lower() not in q_lower:
+            suggestions.append(d)
     return suggestions[:3]
 
 
 def _is_llm_not_found(llm_result: dict) -> bool:
-    """True if the LLM signalled it could not find the answer."""
-    if llm_result.get("not_found"):
-        return True
-    conf   = llm_result.get("confidence", 1.0)
-    answer = (llm_result.get("answer") or "").lower()
-    if conf < MIN_CONFIDENCE and any(p in answer for p in _NOT_FOUND_PHRASES):
-        return True
-    if conf < 0.30:
-        return True
+    """True only when the LLM explicitly signals it could not find the answer."""
+    if llm_result.get("not_found") is True:
+        conf   = llm_result.get("confidence", 1.0)
+        answer = (llm_result.get("answer") or "").lower()
+        # Only reject if BOTH the flag is set AND the answer contains a not-found phrase
+        if any(p in answer for p in _NOT_FOUND_PHRASES):
+            return True
+        # Or if confidence is extremely low
+        if conf < MIN_CONFIDENCE:
+            return True
     return False
 
 
@@ -193,6 +212,156 @@ def _rerank(chunks: list[RetrievedChunk], question: str, top_k: int = 5) -> list
     return reranked
 
 
+_OVERVIEW_RE = re.compile(
+    r"^(?:what\s+is\s+this|what\s+does\s+this\s+document|summarize|give\s+(?:me\s+)?(?:an?\s+)?overview|"
+    r"overview\s+of|describe\s+this|tell\s+me\s+about\s+this|what\s+is\s+in\s+this|"
+    r"what\s+(?:topics?|subjects?|sections?)\s+(?:are\s+)?(?:covered|discussed|included)|"
+    r"what\s+can\s+i\s+(?:ask|find)|what\s+(?:information|content)\s+is\s+(?:in|available))",
+    re.IGNORECASE,
+)
+
+
+def _is_overview_question(question: str) -> bool:
+    return bool(_OVERVIEW_RE.match(question.strip()))
+
+
+def _overview_response(
+    question: str,
+    session_id: str,
+    document_ids: list[str] | None,
+) -> dict | None:
+    """
+    For "what is this document about?" style questions, build an answer from
+    the first few pages of the document (intro/scope sections) rather than
+    doing a keyword search that returns random policy clauses.
+    Returns None if no document chunks found (fall through to normal pipeline).
+    """
+    store = get_global_store()
+    all_chunks = store.get_all_chunks()
+    if document_ids:
+        doc_chunks = [c for c in all_chunks if c["document_id"] in document_ids]
+    else:
+        doc_chunks = all_chunks
+
+    if not doc_chunks:
+        return None
+
+    # Sort by page number; skip Table-of-Contents pages, take first 6 real-content chunks
+    doc_chunks_sorted = sorted(doc_chunks, key=lambda c: c.get("page_number", 0))
+    non_toc = [c for c in doc_chunks_sorted if not _is_toc_chunk(c.get("text", ""))]
+    first_chunks = (non_toc[:6] if len(non_toc) >= 3 else doc_chunks_sorted[:6])
+
+    doc_name = first_chunks[0]["document_name"].replace(".pdf", "")
+
+    # Build a clean summary from the first chunks
+    lines: list[str] = []
+    seen: set[str] = set()
+    for chunk in first_chunks:
+        for sent in re.split(r"(?<=[.!?])\s+", chunk["text"]):
+            sent = sent.strip()
+            if len(sent.split()) < 8:
+                continue
+            norm = re.sub(r"\s+", " ", sent.lower())[:80]
+            if norm in seen:
+                continue
+            # Skip page numbers, headers, dot leaders
+            if re.search(r"\.{3,}|\bpage\s+\d+\b|^\d+\s*$", sent):
+                continue
+            seen.add(norm)
+            lines.append(sent)
+            if len(lines) >= 5:
+                break
+        if len(lines) >= 5:
+            break
+
+    context_chunks = [
+        {
+            "document_id":     c["document_id"],
+            "document_name":   c["document_name"],
+            "page_number":     c["page_number"],
+            "text":            c["text"],
+            "relevance_score": 0.85,
+        }
+        for c in first_chunks
+    ]
+
+    # Try the LLM first with these intro-page chunks
+    try:
+        llm_result = ask_with_context(question, context_chunks)
+    except Exception as e:
+        logger.warning(f"[QAAgent] Overview LLM call failed: {e}")
+        llm_result = None
+
+    if llm_result and not _is_llm_not_found(llm_result):
+        answer = llm_result.get("answer", "")
+        confidence = llm_result.get("confidence", 0.75)
+        reasoning = [
+            "Detected overview/summary question",
+            f"Fetched first {len(first_chunks)} page(s) of {doc_name}",
+            "Passed introduction sections to LLM for synthesis",
+        ] + (llm_result.get("reasoning_steps") or [])
+        follow_ups = llm_result.get("follow_up_questions") or [
+            "What services require prior authorization?",
+            "What CPT codes are covered under this policy?",
+            "What documentation is required for claims?",
+        ]
+        evidence = llm_result.get("evidence") or f"Answer synthesized from pages 1–{first_chunks[-1]['page_number']} of {doc_name}."
+        next_action = llm_result.get("next_action") or "Ask specific questions about coverage, prior authorization, billing codes, or any topic in the document."
+    else:
+        # Extractive fallback
+        if not lines:
+            return None
+        body = " ".join(lines[:5])
+        answer = f"**{doc_name}** is a healthcare policy document covering:\n\n{body}"
+        confidence = 0.65
+        reasoning = [
+            "Detected overview/summary question",
+            f"Fetched first {len(first_chunks)} page(s) — extractive mode (no API key)",
+        ]
+        follow_ups = [
+            "What services require prior authorization?",
+            "What CPT codes are covered under this policy?",
+            "What documentation is required for claims?",
+        ]
+        evidence = f"Answer built from pages 1–{first_chunks[-1]['page_number']} of {doc_name} (introduction/scope sections)."
+        next_action = "Configure an API key in the Dashboard for a richer AI-generated summary."
+
+    citations = [
+        {
+            "document_id":     c["document_id"],
+            "document_name":   c["document_name"],
+            "page_number":     c["page_number"],
+            "text":            c["text"][:280] + ("…" if len(c["text"]) > 280 else ""),
+            "relevance_score": 0.85,
+        }
+        for c in first_chunks[:3]
+    ]
+
+    ts = datetime.utcnow().isoformat()
+    _audit_store[session_id] = {
+        "session_id":        session_id,
+        "question":          question,
+        "retrieved_pages":   sorted({c["page_number"] for c in first_chunks}),
+        "reasoning_summary": "\n".join(reasoning),
+        "final_answer":      answer,
+        "confidence":        confidence,
+        "source_citations":  citations,
+        "steps":             [{"step": s, "description": s, "timestamp": ts} for s in reasoning],
+        "created_at":        ts,
+    }
+
+    return {
+        "answer":             answer,
+        "confidence":         confidence,
+        "citations":          citations,
+        "evidence":           evidence,
+        "next_action":        next_action,
+        "session_id":         session_id,
+        "reasoning_steps":    reasoning,
+        "follow_up_questions": follow_ups,
+    }
+
+
 def run_qa(
     question:     str,
     document_ids: list[str] | None = None,
@@ -206,9 +375,13 @@ def run_qa(
         logger.info("[QAAgent] Casual question — skipping retrieval")
         return _casual_response(question, session_id)
 
-    # ── Step 1: Retrieve (top 10 so re-ranker has material) ──────────────────
+    # Overview/summary questions go through the normal pipeline with a larger top_k
+    # so the LLM gets a representative cross-section of the document.
+
+    # ── Step 1: Retrieve (more chunks for overview questions) ────────────────
+    is_overview = _is_overview_question(question)
     try:
-        raw_chunks = run_retrieval(question, top_k=10, document_ids=document_ids)
+        raw_chunks = run_retrieval(question, top_k=20 if is_overview else 15, document_ids=document_ids)
     except Exception as e:
         logger.error(f"[QAAgent] Retrieval failed: {e}")
         raw_chunks = []
@@ -216,7 +389,7 @@ def run_qa(
     if not raw_chunks:
         return _not_found_response(question, session_id, reason="no_documents")
 
-    # ── Step 2: Relevance threshold ───────────────────────────────────────────
+    # ── Step 2: Relevance threshold (very permissive — LLM does final check) ─
     top_score = raw_chunks[0].relevance_score
     if top_score < MIN_RELEVANCE:
         return _not_found_response(
@@ -225,7 +398,7 @@ def run_qa(
         )
 
     # ── Step 3: Re-rank ───────────────────────────────────────────────────────
-    chunks = _rerank(raw_chunks, question, top_k=5)
+    chunks = _rerank(raw_chunks, question, top_k=10 if is_overview else 7)
 
     # ── Step 3b: Remove ToC chunks when substantive content is available ──────
     non_toc = [c for c in chunks if not _is_toc_chunk(c.text)]
@@ -414,7 +587,7 @@ def _not_found_response(
             "LLM returned low confidence — answer not grounded in document",
         ]
 
-    suggestions = suggested_questions or _suggest_from_chunks(chunks)
+    suggestions = suggested_questions or _suggest_from_chunks(chunks, question)
 
     ts = datetime.utcnow().isoformat()
     _audit_store[session_id] = {
