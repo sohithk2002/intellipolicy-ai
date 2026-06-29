@@ -1,0 +1,7 @@
+.api_config.json
+.doc_store.json
+__pycache__/
+*.pyc
+*.pyo
+.env
+uploads/
