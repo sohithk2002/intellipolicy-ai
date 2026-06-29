@@ -1127,7 +1127,8 @@ def ask_with_context(
         for c in context_chunks
     ])
 
-    prompt = f"""You are a precise healthcare policy analyst. Your ONLY source of truth is the POLICY CONTEXT below. Never use prior knowledge.
+    prompt = f"""You are a strict healthcare policy analyst. Your ONLY source of truth is the POLICY CONTEXT below.
+You must NEVER use outside knowledge, training data, or assumptions. Every statement must be directly supported by the provided text.
 
 {history_text}
 
@@ -1136,32 +1137,50 @@ POLICY CONTEXT:
 
 QUESTION: {question}
 
-RULES — follow every one:
-1. Answer ONLY using information explicitly stated in the POLICY CONTEXT. Never use outside knowledge.
-2. "answer": Write a concise human-readable paragraph (2-4 sentences). Do NOT paste raw policy text. Do NOT include section numbers or headers. Summarise in plain English.
-3. If the context does not clearly address the question, set answer to exactly: "I could not find sufficient information in the uploaded document."
-4. "evidence": 1-2 sentences explaining SPECIFICALLY why the cited page supports this answer. Name the document section or concept. Do NOT repeat the answer verbatim.
-5. "next_action": One concrete instruction for a claims analyst referencing the specific page number and the topic of the question (e.g. "Verify the place-of-service code and apply the nonfacility rate from page 12 of the document before billing."). Do NOT be generic.
-6. "confidence": Float 0.0–1.0 based on how completely the context answers the question.
-7. "reasoning_steps": Real pipeline steps — retrieval count, top similarity score, pages used. Do NOT invent steps.
-8. "follow_up_questions": 3 questions that a claims analyst would logically ask next about THIS specific document and topic.
+GROUNDING RULES — ALL are mandatory:
 
-Respond with ONLY valid JSON — no markdown, no explanation:
+1. Read every chunk carefully. Determine if the POLICY CONTEXT explicitly answers the question.
+
+2. STRONG SIGNAL REQUIRED — only answer "found" if the context contains at least one of:
+   - The exact CPT/HCPCS code mentioned in the question
+   - The exact procedure or service name
+   - The exact policy term (prior authorization, coverage, billing, etc.)
+   - A sentence that directly answers the question
+
+3. If the context clearly answers the question:
+   - Set "not_found": false
+   - "answer": Plain English, 2-4 sentences. No raw policy text. No section numbers.
+   - "confidence": 0.50–1.0 based on how completely the context answers the question
+   - "evidence": 1-2 sentences explaining SPECIFICALLY which page/section supports the answer and why
+   - "next_action": One concrete instruction referencing the exact page number
+
+4. If the context does NOT clearly answer the question (weak match, unrelated content, or general policy text that does not address the specific question):
+   - Set "not_found": true
+   - Set "answer" to EXACTLY this phrase: "This is not mentioned in the uploaded document."
+   - Set "confidence" below 0.50
+   - "follow_up_questions": 3 questions the document DOES answer well
+
+5. NEVER guess, infer, or use background knowledge. If unsure → not_found: true.
+
+6. "reasoning_steps": List the actual retrieval facts (chunk count, top similarity, pages). Do NOT invent steps.
+
+Respond with ONLY valid JSON — no markdown, no explanation outside the JSON:
 {{
-  "answer": "Concise plain-English answer, no raw policy text",
+  "not_found": false,
+  "answer": "Concise plain-English answer directly from the document",
   "confidence": 0.87,
-  "evidence": "Specific explanation of why page N supports this answer",
-  "next_action": "Specific analyst instruction referencing page N and the question topic",
+  "evidence": "Specific explanation of why page N of DocumentName supports this answer",
+  "next_action": "Specific analyst instruction referencing the exact page number and topic",
   "follow_up_questions": [
-    "Specific follow-up 1",
-    "Specific follow-up 2",
-    "Specific follow-up 3"
+    "Specific question this document answers well",
+    "Specific question this document answers well",
+    "Specific question this document answers well"
   ],
   "reasoning_steps": [
     "Retrieved N chunks from vector store",
     "Top similarity: X.XX — DocumentName p.N",
     "Pages used: N, N",
-    "Generated answer from retrieved context"
+    "Answer grounded in context"
   ]
 }}"""
 
