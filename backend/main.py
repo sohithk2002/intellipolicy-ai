@@ -15,12 +15,18 @@ from app.api.routes import router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info("IntelliPolicy AI starting up...")
-    try:
-        from app.db.setup import init_db
-        init_db()
-        logging.info("Database initialized")
-    except Exception as e:
-        logging.warning(f"DB init skipped (running without PostgreSQL): {e}")
+    # Only attempt DB init when DATABASE_URL is explicitly provided.
+    # Without it the connection attempt to localhost:5432 can hang for
+    # minutes and block the healthcheck from ever responding.
+    if os.environ.get("DATABASE_URL"):
+        try:
+            from app.db.setup import init_db
+            init_db()
+            logging.info("Database initialized")
+        except Exception as e:
+            logging.warning(f"DB init failed: {e}")
+    else:
+        logging.info("No DATABASE_URL — running with in-memory store")
     yield
     logging.info("IntelliPolicy AI shutting down")
 
