@@ -976,7 +976,18 @@ export default function RulesPage() {
             <SummaryPanel rules={rules} />
 
             <div className="flex gap-4 items-center">
-              <Link href="/claims" className="flex-1">
+              <Link
+                href={(() => {
+                  const first = rules.find((r) => r.cpt_code || r.procedure);
+                  if (!first) return "/claims";
+                  const p = new URLSearchParams();
+                  if (first.cpt_code)  p.set("cpt",       first.cpt_code.split(/[,/\s]+/)[0].trim());
+                  if (first.procedure) p.set("procedure",  first.procedure);
+                  if (first.plan_type) p.set("plan_type",  first.plan_type);
+                  return `/claims?${p.toString()}`;
+                })()}
+                className="flex-1"
+              >
                 <button
                   className="w-full flex items-center justify-center gap-3 py-3.5 px-6 rounded-xl text-gray-900 text-[15px] font-bold transition-all group"
                   style={{ background: "linear-gradient(135deg, #d1d5db, #6b7280)", boxShadow: "0 8px 32px rgba(0,0,0,0.12)" }}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { PageHero } from "@/components/ui/PageHero";
@@ -46,8 +47,17 @@ const TIMELINE_STEPS = [
   "Decision generated",
 ];
 
-export default function ClaimsPage() {
+export default function ClaimsPageWrapper() {
+  return (
+    <Suspense>
+      <ClaimsPage />
+    </Suspense>
+  );
+}
+
+function ClaimsPage() {
   const { selectedDoc } = useDocumentContext();
+  const searchParams = useSearchParams();
   const [form, setForm] = useState({
     cpt_code: "",
     diagnosis_code: "",
@@ -57,8 +67,14 @@ export default function ClaimsPage() {
   });
 
   useEffect(() => {
-    setForm((f) => ({ ...f, service_date: new Date().toISOString().split("T")[0] }));
-  }, []);
+    setForm((f) => ({
+      ...f,
+      service_date: new Date().toISOString().split("T")[0],
+      cpt_code:   searchParams.get("cpt")       || f.cpt_code,
+      procedure:  searchParams.get("procedure")  || f.procedure,
+      plan_type:  searchParams.get("plan_type")  || f.plan_type,
+    }));
+  }, [searchParams]);
   const [loading, setLoading]       = useState(false);
   const [result, setResult]         = useState<ClaimValidationResponse | null>(null);
   const [timelineStep, setTimelineStep] = useState(-1);
