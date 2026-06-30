@@ -27,6 +27,13 @@ async def lifespan(app: FastAPI):
             logging.warning(f"DB init failed: {e}")
     else:
         logging.info("No DATABASE_URL — running with in-memory store")
+    # Pre-warm embedding model so first request is instant
+    try:
+        from app.services.embeddings import _get_model
+        _get_model()
+        logging.info("Embedding model loaded")
+    except Exception as e:
+        logging.warning(f"Embedding model pre-warm failed: {e}")
     yield
     logging.info("IntelliPolicy AI shutting down")
 
