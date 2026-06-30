@@ -45,3 +45,9 @@ pgdata/
 # Logs
 *.log
 npm-debug.log*
+
+# Assessment documents — keep local only
+*.pptx
+*.docx
+build_docs.py
+IntelliPolicy_AI_Video_Script.txt
