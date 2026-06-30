@@ -37,6 +37,11 @@ class AskResponse(BaseModel):
     session_id: str
     reasoning_steps: list[str]
     follow_up_questions: list[str] = []
+    # structured fields — additive, never break existing consumers
+    key_points: list[str] = []
+    confidence_label: str = ""
+    recommended_action: str = ""
+    supporting_evidence: list[dict] = []
 
 
 class CompareRequest(BaseModel):

@@ -91,11 +91,15 @@ async def ask_question(request: AskRequest):
         answer=result["answer"],
         confidence=result["confidence"],
         citations=citations,
-        evidence=result["evidence"],
-        next_action=result["next_action"],
+        evidence=result.get("evidence", ""),
+        next_action=result.get("next_action", ""),
         session_id=result["session_id"],
         reasoning_steps=result.get("reasoning_steps", []),
         follow_up_questions=result.get("follow_up_questions", []),
+        key_points=result.get("key_points", []),
+        confidence_label=result.get("confidence_label", ""),
+        recommended_action=result.get("recommended_action", result.get("next_action", "")),
+        supporting_evidence=result.get("supporting_evidence", []),
     )
 
 

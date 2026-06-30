@@ -381,7 +381,7 @@ def run_qa(
     # ── Step 1: Retrieve (more chunks for overview questions) ────────────────
     is_overview = _is_overview_question(question)
     try:
-        raw_chunks = run_retrieval(question, top_k=20 if is_overview else 15, document_ids=document_ids)
+        raw_chunks = run_retrieval(question, top_k=20 if is_overview else 10, document_ids=document_ids)
     except Exception as e:
         logger.error(f"[QAAgent] Retrieval failed: {e}")
         raw_chunks = []
@@ -398,7 +398,7 @@ def run_qa(
         )
 
     # ── Step 3: Re-rank ───────────────────────────────────────────────────────
-    chunks = _rerank(raw_chunks, question, top_k=10 if is_overview else 7)
+    chunks = _rerank(raw_chunks, question, top_k=8 if is_overview else 5)
 
     # ── Step 3b: Remove ToC chunks when substantive content is available ──────
     non_toc = [c for c in chunks if not _is_toc_chunk(c.text)]
@@ -498,15 +498,23 @@ def run_qa(
     })
 
     # ── Step 10: Audit record ─────────────────────────────────────────────────
+    conf = llm_result.get("confidence", 0.0)
     response = {
-        "answer":             answer_text,
-        "confidence":         llm_result.get("confidence", 0.0),
-        "citations":          citations,
-        "evidence":           llm_result.get("evidence", ""),
-        "next_action":        llm_result.get("next_action", ""),
-        "session_id":         session_id,
-        "reasoning_steps":    final_reasoning,
-        "follow_up_questions":llm_result.get("follow_up_questions", []),
+        "answer":              answer_text,
+        "confidence":          conf,
+        "citations":           citations,
+        "evidence":            llm_result.get("evidence", ""),
+        "next_action":         llm_result.get("next_action", ""),
+        "session_id":          session_id,
+        "reasoning_steps":     final_reasoning,
+        "follow_up_questions": llm_result.get("follow_up_questions", []),
+        # new structured fields — passed through from llm_result / extractive fallback
+        "key_points":          llm_result.get("key_points", []),
+        "confidence_label":    llm_result.get("confidence_label", (
+            "High" if conf >= 0.70 else "Medium" if conf >= 0.45 else "Low"
+        )),
+        "recommended_action":  llm_result.get("recommended_action", llm_result.get("next_action", "")),
+        "supporting_evidence": llm_result.get("supporting_evidence", []),
     }
 
     _audit_store[session_id] = {

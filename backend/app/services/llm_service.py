@@ -258,6 +258,25 @@ _DOC_HEADER_PAT = re.compile(
     re.IGNORECASE,
 )
 
+# Boilerplate sentences to strip before sending context to the LLM
+_BOILERPLATE_PAT = re.compile(
+    r"table\s+of\s+contents"
+    r"|for\s+(?:more\s+)?information\s+(?:contact|call|see|visit|please)"
+    r"|implementation\s+date|transmittal\s+(?:number|date|summary)"
+    r"|transmittals?\s+for\s+(?:chapter|section|part)"
+    r"|(?:issued|effective)\s*:\s*\d{2}-\d{2}-\d{2}"
+    r"|business\s+requirement[s]?\b"
+    r"|attachment\s+[A-Z]\b"
+    r"|revision\s+history|change\s+history|version\s+\d"
+    r"|^\s*(?:contact|phone|fax|email|address)\s*:"
+    r"|this\s+(?:policy|document|manual|guide)\s+(?:is\s+effective|was\s+issued|applies\s+to)"
+    r"|(?:questions?|inquiries?)\s+(?:should\s+be\s+directed|may\s+be\s+sent)",
+    re.IGNORECASE,
+)
+
+# Matches run-on ToC lines: "20 - Section 20.1 - Subsection 20.2 -" repeated numbered items
+_TOC_RUNON_PAT = re.compile(r"(?:\d{1,3}(?:\.\d+)*\s*[-–]\s+[A-Z][^.!?]{0,60}){3,}", re.IGNORECASE)
+
 def _is_toc_sentence(s: str) -> bool:
     """True for ToC entries, PDF headers/footers, and document metadata lines."""
     if re.search(r"\.{3,}\s*\d+\s*$", s):                      # "Section....42"
@@ -273,6 +292,9 @@ def _is_toc_sentence(s: str) -> bool:
     # Pipe-separated metadata: "Title | Subtitle | Date"
     if s.count("|") >= 1 and len(s) < 120:
         return True
+    # Run-on ToC line: "10 - General 20 - Medicare Fee Schedule 20.1 - ..."
+    if _TOC_RUNON_PAT.search(s):
+        return True
     return False
 
 
@@ -287,6 +309,45 @@ def _strip_doc_header(text: str) -> str:
         header_done = True
         keep.append(line)
     return "\n".join(keep)
+
+
+def _sentence_filter_for_llm(
+    context_chunks: list[dict],
+    keywords: set[str],
+    max_sents_per_chunk: int = 5,
+    max_chunks: int = 3,
+) -> list[dict]:
+    """
+    Pre-filter chunks before sending to LLM:
+    - Remove boilerplate sentences (ToC, contacts, transmittal metadata)
+    - Keep only sentences that contain a query keyword (or are in a high-relevance chunk)
+    - Cap at max_sents_per_chunk sentences per chunk, max_chunks chunks total
+    Returns new list of chunks with filtered .text; falls back to original if filter empties a chunk.
+    """
+    filtered: list[dict] = []
+    for chunk in context_chunks[:max_chunks]:
+        raw_text = _strip_doc_header(chunk["text"])
+        sentences = re.split(r"(?<=[.!?])\s+", raw_text)
+        kept: list[str] = []
+        for sent in sentences:
+            sent = sent.strip()
+            if len(sent.split()) < 5:
+                continue
+            if _is_toc_sentence(sent):
+                continue
+            if _BOILERPLATE_PAT.search(sent):
+                continue
+            overlap = _sentence_overlap_score(sent, keywords)
+            # Keep if keyword overlap OR chunk is highly relevant (avoids dropping context for overview Qs)
+            if overlap > 0 or chunk.get("relevance_score", 0) >= 0.35:
+                kept.append(sent)
+        # If filter leaves nothing, keep first 3 substantive sentences as fallback
+        if not kept:
+            kept = [s.strip() for s in sentences if len(s.strip().split()) >= 8][:3]
+        new_chunk = dict(chunk)
+        new_chunk["text"] = " ".join(kept[:max_sents_per_chunk])
+        filtered.append(new_chunk)
+    return filtered
 
 
 def _pick_best_sentences(
@@ -378,6 +439,21 @@ def _synthesize_answer(sentences: list[str], question: str, best_chunk: dict) ->
             intro = f"**{doc_name}** covers medical necessity criteria and coverage determination guidelines."
         return f"{intro}\n\n{body}"
 
+    # Add required opener if not already present
+    _OPENERS = (
+        "yes, the document", "no, the document",
+        "the document states", "the document partially",
+        "the uploaded document does not",
+    )
+    if not any(body.lower().startswith(op) for op in _OPENERS):
+        # Check if body looks like it's actually answering the question
+        q_words = set(question.lower().split()) - {"what", "is", "the", "a", "an", "are", "for", "does", "can"}
+        body_words = set(body.lower().split())
+        if q_words & body_words:
+            body = "The document states: " + body
+        else:
+            body = "The uploaded document does not explicitly mention this. The closest relevant content states: " + body
+
     return body
 
 
@@ -462,18 +538,46 @@ def _extractive_qa(question: str, context_chunks: list[dict]) -> dict:
         "Embedded query using BAAI/bge-small-en-v1.5 (384-dim)",
         f"Retrieved {len(context_chunks)} chunks; top similarity {context_chunks[0]['relevance_score']:.2f}",
         f"Best chunk: {best_chunk['document_name']} p.{best_chunk['page_number']}",
-        f"Scored {sum(1 for c in context_chunks for s in re.split(r'(?<=[.!?])\\s+', c['text']) if len(s.split()) >= 7)} candidate sentences; selected {len(top_sentences)}",
+        f"Scored candidate sentences; selected {len(top_sentences)}",
         f"Confidence: {confidence:.2f} (weighted avg of top-3 chunk similarities)",
         "Extractive mode — configure an API key in Dashboard for LLM-quality answers",
     ]
 
     follow_ups = _generate_extractive_followups(question, context_chunks[:3])
 
+    conf_label = (
+        "High"   if confidence >= 0.70 else
+        "Medium" if confidence >= 0.45 else
+        "Low"
+    )
+
+    # Derive 2-3 key points from the top extracted sentences
+    key_pts: list[str] = []
+    for s in top_sentences[:3]:
+        s = s.strip()
+        if s and len(s.split()) >= 6:
+            s = s[0].upper() + s[1:]  # ensure capitalized
+            key_pts.append(s[:180])
+
+    sup_ev: list[dict] = []
+    if top_sentences:
+        quote = top_sentences[0][:120].strip()
+        sup_ev.append({
+            "document": best_chunk.get("document_name", ""),
+            "page":     best_chunk.get("page_number", 0),
+            "section":  None,
+            "quote":    quote,
+        })
+
     return {
         "answer":              answer,
         "confidence":          confidence,
+        "confidence_label":    conf_label,
+        "key_points":          key_pts,
         "evidence":            evidence,
+        "supporting_evidence": sup_ev,
         "next_action":         next_action,
+        "recommended_action":  next_action,
         "reasoning_steps":     reasoning_steps,
         "follow_up_questions": follow_ups,
     }
@@ -1214,67 +1318,88 @@ def ask_with_context(
 ) -> dict:
     """Generate an answer grounded strictly in context_chunks."""
 
-    # Build conversation context string for the prompt
+    keywords = _question_keywords(question)
+
+    # Sentence-filter chunks before sending — removes boilerplate, unrelated sentences
+    filtered_chunks = _sentence_filter_for_llm(context_chunks, keywords, max_chunks=3)
+
     history_text = ""
     if conversation_history:
-        history_text = "\n\nPREVIOUS CONVERSATION:\n"
-        for turn in conversation_history[-3:]:  # last 3 turns
-            history_text += f"User: {turn['question']}\nAssistant: {turn['answer']}\n"
+        history_text = "PREVIOUS CONVERSATION:\n"
+        for turn in conversation_history[-3:]:
+            history_text += f"Q: {turn['question']}\nA: {turn['answer'][:200]}\n"
+        history_text += "\n"
 
     context_text = "\n\n---\n\n".join([
-        f"[Document: {c['document_name']} | Page {c['page_number']} | Similarity: {c['relevance_score']:.2f}]\n{c['text']}"
-        for c in context_chunks
+        f"[Document: {c['document_name']} | Page {c['page_number']}]\n{c['text']}"
+        for c in filtered_chunks
     ])
 
-    prompt = f"""You are a helpful, expert healthcare policy assistant — like a senior analyst who has read this document thoroughly.
-Your job is to give clear, direct, useful answers based on the policy document text provided below.
+    prompt = f"""You are a senior healthcare policy analyst. Answer the question using ONLY the document evidence provided below. Be concise, direct, and factual.
 
-{history_text}
-
-DOCUMENT CONTEXT (retrieved sections most relevant to the question):
+{history_text}DOCUMENT EVIDENCE:
 {context_text}
 
-USER QUESTION: {question}
+QUESTION: {question}
 
-INSTRUCTIONS:
+STRICT RULES:
+1. Start your answer with exactly one of these openers:
+   - "Yes, the document states..." (when document directly confirms)
+   - "No, the document does not..." (when document directly contradicts or is silent)
+   - "The document states..." (for factual statements)
+   - "The document partially addresses..." (when only partially covered)
+   - "The uploaded document does not explicitly mention this." (when truly not covered — then describe the closest evidence found)
 
-1. Read all context sections carefully. Answer as helpfully as possible based on what the document says.
+2. Do NOT paste raw document text. Paraphrase only the sentences that directly answer the question. Ignore surrounding unrelated text even if it is in the same chunk.
 
-2. For general questions ("What is this about?", "Summarize", "What does this cover?"):
-   - Give a clear overview synthesized from the context. Be descriptive and useful.
-   - Mention the document name, key topics, and any key rules or coverage areas you see.
+3. Do NOT infer or recommend prior authorization, coverage approval, denial, or clinical decisions unless the evidence EXPLICITLY states it with those exact words.
 
-3. For specific questions (CPT codes, prior auth, coverage limits, etc.):
-   - Answer directly and specifically from the context.
-   - Quote or paraphrase the relevant policy language.
-   - Mention the page number(s) where the information appears.
+4. If the evidence does not directly answer the question, say so in the first sentence. Then describe what the closest evidence does say and explain why it is insufficient.
 
-4. Format your answers like ChatGPT — clear, structured, easy to read. Use bullet points for lists.
-   Keep answers concise but complete (3-6 sentences or equivalent bullets).
+5. Key Points: 2–4 short bullets. Each bullet must be a fact directly from the evidence. No inferences.
 
-5. Only set "not_found": true if the document context is completely unrelated to the question
-   (e.g. asking about cardiology when the document is only about billing codes with zero overlap).
-   When in doubt, answer from the closest relevant content and note what you found.
+6. Confidence rules — you MUST apply these:
+   - "High": The document contains an exact sentence that directly answers the question
+   - "Medium": Related section found but the answer requires reading between lines
+   - "Low": Only keyword overlap; no direct policy language answers the question
 
-6. "confidence": 0.70–1.0 for clear answers, 0.50–0.70 for partial/inferred answers, below 0.50 only if truly not found.
+7. Evidence quote: Must be a verbatim quote from the evidence above. Maximum 25 words.
 
-Respond with ONLY valid JSON:
+8. Recommended Next Step: One specific practical action. Do NOT say "submit prior authorization" unless the evidence explicitly says prior authorization is required for this specific procedure.
+
+9. If the question is conversational (hi, hello, who are you), respond helpfully and skip the structured format — just fill "answer" and leave other fields as defaults.
+
+Respond with ONLY valid JSON — no text before or after:
 {{
   "not_found": false,
-  "answer": "Clear, helpful answer in plain English. Use \\n for line breaks and bullet points (- item) for lists.",
+  "answer": "2–4 sentence answer starting with one of the required openers.",
+  "key_points": [
+    "Specific fact from evidence — no inference",
+    "Another specific fact from evidence",
+    "Third specific fact if available"
+  ],
   "confidence": 0.87,
-  "evidence": "Page N of DocumentName covers this topic — brief explanation of what that section says",
-  "next_action": "Concrete next step or recommendation for the user",
+  "confidence_label": "High",
+  "evidence": "Page N of DocumentName — quote or paraphrase max 25 words",
+  "supporting_evidence": [
+    {{
+      "document": "document_name.pdf",
+      "page": 9,
+      "section": "Section heading if visible in text, else null",
+      "quote": "Verbatim quote from the evidence above, max 25 words"
+    }}
+  ],
+  "recommended_action": "One specific practical next step",
+  "next_action": "One specific practical next step",
   "follow_up_questions": [
-    "A useful follow-up question about this document",
-    "Another useful follow-up question",
-    "A third useful follow-up question"
+    "Relevant follow-up question 1",
+    "Relevant follow-up question 2",
+    "Relevant follow-up question 3"
   ],
   "reasoning_steps": [
     "Retrieved N chunks from vector store",
-    "Top similarity: X.XX — DocumentName p.N",
-    "Pages used: N, N",
-    "Answer synthesized from context"
+    "Top match: DocumentName p.N",
+    "Pages used in answer: N, N"
   ]
 }}"""
 
@@ -1287,8 +1412,53 @@ Respond with ONLY valid JSON:
         start = raw.find("{")
         end   = raw.rfind("}") + 1
         if start >= 0 and end > start:
-            return json.loads(raw[start:end])
-        return json.loads(raw)
+            result = json.loads(raw[start:end])
+        else:
+            result = json.loads(raw)
+
+        # ── Post-generation verification ────────────────────────────────────
+        answer = (result.get("answer") or "").strip()
+
+        # Enforce required openers — if LLM returned raw text without opener, prefix it
+        _REQUIRED_OPENERS = (
+            "yes, the document",
+            "no, the document",
+            "the document states",
+            "the document partially",
+            "the uploaded document does not",
+        )
+        if answer and not any(answer.lower().startswith(op) for op in _REQUIRED_OPENERS):
+            # Detect if the answer looks like raw chunk content (starts with a number/code or pipe)
+            if re.match(r"^\d|^\|", answer):
+                result["answer"] = "The uploaded document does not explicitly mention this. " + answer
+            else:
+                result["answer"] = "The document states: " + answer
+
+        # Ensure both action fields are populated from each other
+        if not result.get("next_action"):
+            result["next_action"] = result.get("recommended_action", "Review the cited page for additional context.")
+        if not result.get("recommended_action"):
+            result["recommended_action"] = result.get("next_action", "")
+
+        # Ensure confidence_label is set if LLM omitted it
+        conf = float(result.get("confidence", 0.5))
+        if not result.get("confidence_label"):
+            result["confidence_label"] = (
+                "High"   if conf >= 0.70 else
+                "Medium" if conf >= 0.45 else
+                "Low"
+            )
+
+        # Ensure key_points is always a list
+        if not isinstance(result.get("key_points"), list):
+            result["key_points"] = []
+
+        # Ensure supporting_evidence is always a list
+        if not isinstance(result.get("supporting_evidence"), list):
+            result["supporting_evidence"] = []
+
+        return result
+
     except Exception as e:
         logger.error(f"[LLM] JSON parse failed: {e}")
         return _extractive_qa(question, context_chunks)
