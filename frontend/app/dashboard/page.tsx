@@ -652,6 +652,7 @@ export default function DashboardPage() {
   const [apiStats, setApiStats]           = useState<ApiStats | null>(null);
   const [auditRecords, setAuditRecords]   = useState<AuditRecord[]>([]);
   const [claimRecords, setClaimRecords]   = useState<ClaimAuditRecord[]>([]);
+  const [chartData, setChartData]         = useState<{ day: string; queries: number; claims: number }[]>([]);
 
   const refreshStats = () => {
     api.getDashboardStats().then(setApiStats).catch(() => {});
@@ -664,6 +665,11 @@ export default function DashboardPage() {
     const interval = setInterval(refreshStats, 30_000); // refresh every 30 s
     return () => clearInterval(interval);
   }, []);
+
+  // Computed client-side only — uses new Date() so must not run during SSR
+  useEffect(() => {
+    setChartData(computeActivityData(auditRecords, claimRecords));
+  }, [auditRecords, claimRecords]);
 
   const stats = STAT_META.map((m) => ({
     ...m,
@@ -680,7 +686,6 @@ export default function DashboardPage() {
 
   const agents       = computeAgents(apiStats);
   const riskInsights = computeRiskInsights(auditRecords, claimRecords, apiStats);
-  const chartData    = computeActivityData(auditRecords, claimRecords);
 
   return (
     <DashboardLayout>

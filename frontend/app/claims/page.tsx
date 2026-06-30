@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { PageHero } from "@/components/ui/PageHero";
@@ -53,8 +53,12 @@ export default function ClaimsPage() {
     diagnosis_code: "",
     plan_type: "Commercial",
     procedure: "",
-    service_date: new Date().toISOString().split("T")[0],
+    service_date: "",
   });
+
+  useEffect(() => {
+    setForm((f) => ({ ...f, service_date: new Date().toISOString().split("T")[0] }));
+  }, []);
   const [loading, setLoading]       = useState(false);
   const [result, setResult]         = useState<ClaimValidationResponse | null>(null);
   const [timelineStep, setTimelineStep] = useState(-1);
