@@ -90,7 +90,7 @@ function ClaimsPage() {
   };
 
   const handleValidate = async () => {
-    if (!form.cpt_code || !form.diagnosis_code) return;
+    if (!form.cpt_code) return;
     setLoading(true);
     setResult(null);
     setError("");
@@ -211,7 +211,7 @@ function ClaimsPage() {
                 <Button
                   onClick={handleValidate}
                   loading={loading}
-                  disabled={!form.cpt_code || !form.diagnosis_code || loading}
+                  disabled={!form.cpt_code || loading}
                   icon={<ShieldCheck className="w-4 h-4" />}
                   className="flex-1"
                 >
